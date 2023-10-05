@@ -12,19 +12,24 @@ const nameFinder = [
     'Marc'
   ];
 const finderName = (name, array) => {
-    let status = ""
-    let position = ""
     if (array.includes(name)) {
-        status = true
+        return `true, el nombre ${name} está en la posición ${array.indexOf(name)} `
     } else {
-        status = false
+        return false
     }
-    for(let a = 0 ; a < array.length ; a++) {
-        if (array[a] == name) {
-            position = a
-        } 
-    }
-    return (status + ", y la posición es: " + position)
+    // let status = ""{}
+    // let position = ""
+    // if (array.includes(name)) {
+    //     status = true
+    // } else {
+    //     status = false
+    // }
+    // for(let a = 0 ; a < array.length ; a++) {
+    //     if (array[a] == name) {
+    //         position = a
+    //     } 
+    // }
+    // return (status + ", y la posición es: " + position)
     
 }
 

@@ -9,11 +9,23 @@ const toys = [
 
 let newArray = [];
 for (let juguete of toys) {
-    // clave = Object.keys(juguete);
-    // valor = Object.values(juguete)
-    for (let inJuguete in juguete)
-    clave = Object.keys(inJuguete);
-    valor = Object.values(inJuguete)
+    !juguete.name.includes("gato") ? newArray.push(juguete): null;
+}
+// Haciendo nombreObjeto.nombreClave se llega la valor, recuérdalo!!!
+
+
+
+    // for (let clave in juguete) {
+       
+    // console.log(juguete["name"])
+    // }
+    // 
+    // for (let a = 0; a < juguete.length; a++) { /* esto no se si es necesario,estoy probando*/
+    //     valor[a].includes("gato") ? newArray.push(juguete) : null
+    // }
+
+
+    // for (let inJuguete in juguete)
     // if (valor.includes("gato")) {
     //     newArray.push(juguete);
     // }
@@ -21,7 +33,7 @@ for (let juguete of toys) {
     // for (let subJuguete in juguete) {
     //     if ()
     // }
-    console.log(clave)
-}
-console.log(newArray);
+
+console.log(newArray)
+
 

@@ -31,7 +31,7 @@ const añosTotales = pilots.reduce((acc, pilot) =>  acc + pilot.years, 0)
 // console.log(añosTotales)
 
 const masExperimentado = pilots.reduce(function(acc, pilot) {
-  return pilot.years > acc.years ? pilot : acc; // preguntar sobre esto a Laura, supuestamente acc no puede acceder a propiedades de objetos
+  return pilot.years > acc.years ? pilot : acc; 
 })
 // console.log(masExperimentado);
 
