@@ -1,0 +1,292 @@
+*{
+    margin: 0px;
+    padding: 0px;
+    box-sizing: border-box;
+    font-family: Helvetica, "Helvetica Neue";
+}
+
+ion-icon {
+    color: white;
+    --ionicon-stroke-width: 40px;
+    font-size: 23px;
+}
+
+header{
+    width: 100wv;
+    height: 20hv;
+    display: flex;
+    flex-direction: column;
+    /* flex-direction: row; */
+    background-color: black;
+    /* justify-content:space-between;
+    align-items: center;
+    padding: 20px 0 20px 0; */
+}
+
+.headeralto {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+    padding: 8px 40px 0 0;
+    margin: 0px
+}
+
+.headeralto ion-icon {
+    font-size: 18px;
+}
+
+.headerbajo {
+    display: flex;
+    flex-direction: row;
+    justify-content:space-between; 
+    align-items: center;
+    padding: 0px;
+    margin: 0px;
+}
+
+.find {
+    margin-left: 40px;
+    background: none;
+    border: none;
+}
+
+.indexandtitle {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    /* margin-left: 175px; */
+}
+
+.rightlist, .leftlist {
+    display: flex;
+    flex-direction: row;
+    color: white;
+    gap: 1rem;
+    align-items: center;
+    justify-content: center;
+    /* flex-grow: 1;
+    flex-shrink: 1;
+    flex-basis: 20%; */
+    flex-wrap: wrap;
+    width: 30%;
+}
+
+.containerLupa{
+    width: 130px;
+}
+
+li {
+    list-style: none;
+    font-weight: 549;
+    letter-spacing: 0.2em;
+    font-size: 13px;
+}
+
+.shopall {
+    display: inline-block;
+}
+
+#title {
+    color: white;
+    font-weight: 799;   /*!COMO HACER QUE QUEDE EN EL MEDIO EL TITLE*/
+    margin: 30px;
+    font-size: 38px;
+}
+
+.botones_derecha {
+    margin-right: 40px;
+    display: flex;
+    gap: 2rem;
+    width: 130px;
+}
+
+.profile {
+    background: none;
+    border: none;
+}
+
+.cart {
+    background: none;
+    border: none;
+}
+
+/* ?------------------------------------------------------------------------------ */
+
+.primerafoto {
+    background-image: url("https://dayseeker.band/cdn/shop/files/DS_BANNER_1944x.jpg?v=1661356542");
+    background-size:cover;
+    background-position: center;
+    width: 100%;
+    height: 45em;   /*!  NO RESPONSIVE, NO SE PONER HEIGHT SIN PX*/
+    border: 1px solid black;
+    background-position: center;
+}
+
+/*?---------------------------------------------------------------------------------------------------*/
+
+main {
+    background-color: black;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.featured {
+    font-size: 32px;
+    font-weight: 700;
+    color: white;
+    margin: 75px 0 50px 0;
+}
+
+.store {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 1rem;
+    justify-content: center;
+    align-items: center;
+}
+
+article {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 20%;
+    margin-bottom: 30px;
+    gap: 8px;
+}
+
+article img {
+    width: 250px;
+    height: 250px;
+}
+
+.article_description {
+    color: white;
+    width: 250px;
+    display: flex;
+    text-align: center;
+}
+
+.price {
+    color: white;
+}
+
+/*?-------------------------------------------------------------------------------*/
+
+.video {
+    background-color: black;
+    position: relative;
+}
+
+iframe {
+width: 100%;
+height: 600px;  /*!  NO RESPONSIVE, NO SE PONER HEIGHT SIN PX*/
+}
+
+.textoarriba {
+    position: absolute;
+    bottom: 35%;
+}
+
+div h1 {
+    font-size: 80px;
+    color: white;
+    font-weight: 700;
+    text-align: center;
+}
+
+/* !------------------------------------------------------------------------------- */
+
+footer {
+    background-image: url(https://dayseeker.band/cdn/shop/files/DSNEWBG00001.jpg?v=1661357281);
+    background-size: cover;
+    min-height: 65vh;  /*!  NO RESPONSIVE, NO SE PONER HEIGHT SIN PX*/
+    position: relative;
+    display: flex;
+    flex-direction: column;
+}
+
+.footercontainer {
+    height: 250px;
+    width: 300px;
+    position: absolute;
+    right: 260px;   /*!  NO RESPONSIVE, NO SE PONER HEIGHT SIN PX*/
+    top: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 1.5rem;
+}
+
+.sign {
+    color: white;
+    font-weight: 100;
+    letter-spacing: 0.3em;
+    font-size: 0.75em;
+    line-height: 1.6;
+}
+
+.footercontainer p {
+    color: white;
+    font-size: 13.6px;
+    line-height: 1.6;
+    font-weight: 500;
+    margin-bottom: -10px;
+    /* letter-spacing: 0.1em; */
+}
+
+.form {
+    position: relative;
+    display: inline-block;
+    width: 100%;
+    color: white;
+}
+
+input {
+    background-color: #131313;
+    color: white;
+    width: 100%;
+    border: none;
+    height: 45px;   /*!  NO RESPONSIVE, NO SE PONER HEIGHT SIN PX*/
+    border-bottom: 2px solid white;
+}
+
+::placeholder {
+    color: white;
+    font-weight: 400;
+    font-size: 14px;
+}
+
+.form ion-icon {
+    position: absolute;
+    right: 0px;
+    font-size: 35px;
+    --ionicon-stroke-width: 15px;
+    top: 50%;
+    transform: translate(0, -50%) /*NI IDEA DE QUE SIGNIFICA PERO CENTRA EN EL DIV VERTICALMENTE JUNTO CON EL TOP:50%*/ 
+    
+}
+
+.iconsfooter {
+    display: flex;
+    flex-direction: row;
+    gap: 1rem;
+}
+
+.iconsfooter ion-icon {
+    font-size: 26px;
+}
+
+.powered {
+    color: white;
+    font-size: 13px;
+    font-weight: 400px;
+    font-weight: 400;
+    position: absolute;
+    bottom: 70px;
+    left: 41%;
+}

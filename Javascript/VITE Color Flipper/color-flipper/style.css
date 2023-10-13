@@ -1,0 +1,70 @@
+:root {
+  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+
+  color-scheme: light dark;
+  color: rgba(255, 255, 255, 0.87);
+  background-color: whitesmoke;
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-text-size-adjust: 100%;
+}
+
+*{
+  margin: 0px;
+  padding: 0px;
+  box-sizing: border-box;
+}
+
+html, body, #app{
+  min-height: 100vh;
+}
+
+#app {
+display: flex;
+justify-content: center;
+align-items: center;
+flex-direction: column;
+gap: 50px;
+}
+
+.topdiv, .bottomdiv {
+  width: 95vw;
+  height: 150px;
+  background-color: #242424;
+  border: 1px white;
+  border-radius: 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+
+}
+
+#colorpicker {
+  width: 200px;
+  height: 40px;
+  border-radius: 5px;
+}
+
+#nombrecolor {
+  margin: 0 0 15px 0;
+}
+
+select {
+  color: black;
+  font-weight: 600;
+  display: flex;
+  padding: 5px;
+}
+
+option {
+  color: black;
+  font-weight: 500;
+  font-size: 15px;
+
+}

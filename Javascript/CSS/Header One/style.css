@@ -1,0 +1,43 @@
+*{
+    padding:0px;
+    margin: 0px;
+    box-sizing: border-box;
+}
+.header  {
+    font-family: monospace;
+    background: #fa5252;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 2.5px solid black;
+    width: fit-content;
+    padding: 0 10px;
+  }
+  
+  .logo {
+    font-size: 16px;
+    font-weight: 900;
+    background-color: #82c91e;
+    padding: 4px 32px;
+    margin: 20px 50px;
+    border: 1px solid black;
+  }
+  
+  ul {
+    /* this removes the dots on the list items*/
+    list-style-type: none;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+  }
+  
+  a {
+    font-size: 16px;
+    background-color: #7950F3;
+    padding: 3px 30px;
+    border: 1px solid black;
+    color: black;
+    /* this removes the line under the links */
+    text-decoration: none;
+  }
