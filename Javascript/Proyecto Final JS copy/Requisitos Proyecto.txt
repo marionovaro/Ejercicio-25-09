@@ -1,0 +1,15 @@
+Cambio de color de fondo
+
+Filtro según tipos de pokemon
+Buscador de pokemons
+Posibilidad de dar me gusta a los pokemons con tu cuenta de local storage
+//
+
+Leer el codigo, entender, hacer comentarios y luego empezar a escribir
+
+mvil 
+350
+500
+
+1200
++1200

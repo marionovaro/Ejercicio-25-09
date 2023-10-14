@@ -1,0 +1,125 @@
+@import url('https://fonts.googleapis.com/css2?family=Bungee+Spice&family=Ubuntu&display=swap');
+
+
+* {
+    margin: 0px;
+    padding: 0px;
+    box-sizing: border-box;
+    font-family: 'Ubuntu', sans-serif;
+    /* font-family: 'Bungee Spice', sans-serif; */
+}
+
+html, body {
+    background-color: whitesmoke;
+    height: 100vh;
+    width: 100vw;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.containerlogin{
+    width: 80vw;
+    height: 70vh;
+    max-width: 400px;
+    border-radius: 10px;
+    background-color: #242424;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    flex-direction: column;
+    gap: 4rem;
+    position: relative;
+    padding: 0 0 150px 0;
+}
+
+@media screen and (max-height: 800px) {
+    .containerlogin{
+        padding: 0 0 50px 0;
+    }
+}
+
+.containerlogo{
+    width: 90%;
+    height: 45%;
+    position: absolute;
+    top: 0;
+   
+}
+
+img{
+    width: 100%;
+    position: inherit;
+    left: 0;
+    right: 0;
+    margin: auto;
+}
+
+@media screen and (min-width: 450px) {
+    img {
+        width: 300px;
+    }
+}
+
+@media screen and (max-height: 700px) {
+    img{
+        max-width: 75%;
+    }
+
+    .instruccion{
+        width: 90%;
+    }
+
+    h1{
+        font-size: 24px;
+    }
+}
+
+@media screen and (max-height: 610px) { /*! COMO HACER QUE SE VAYA EMPEQUEÑECIENDO SOLA?? EL SALTO DE 75% A 50% ES MUY GRANDE!*/
+    img{
+        max-width: 50%; /*! PORQUE SE VE AL 50% EN EL IPHONE 12 MINI SI SUPUESTAMENTE ES 780PX DE ALTURA*/
+    }
+}
+
+.instruccion{
+    width: 80%;
+    height: 10%;  
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  
+}
+
+h1{
+    font-family: 'Bungee Spice';
+    text-align: center;
+}
+
+.contenido{
+    width: 80%;
+    height: 20%; 
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+input {
+    width: 100%;
+    min-height: 50px;
+    border-radius: 15px;
+}
+
+::placeholder{
+    font-size: 15px;
+    text-align: center;
+}
+
+button{
+    width: 30%;
+    min-height: 50px;
+    font-size: 30px;
+    background-color: greenyellow;
+    border-radius: 15px;
+}

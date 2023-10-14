@@ -47,6 +47,6 @@ export const printTemplateDashboard = () => {
   document.querySelector("main").innerHTML = template();
   document.querySelector("nav").style.display = "flex";
   addEventListeners();
-  console.log(getD  ata());
+  console.log(getData());
   getInfo();
 };
