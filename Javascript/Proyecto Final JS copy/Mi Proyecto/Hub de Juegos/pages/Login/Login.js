@@ -18,6 +18,6 @@ const templateLogin = () => `
 
 
 export const Login = () => {
-    document.querySelector("#app").innerHTML = templateLogin();
+    document.querySelector("main").innerHTML = templateLogin();
 }
 

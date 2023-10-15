@@ -1,3 +1,4 @@
+import { printTemplateFooter } from "../../../Mi Proyecto/Hub de Juegos/components";
 import { getUser } from "../global/state/globalState";
 import { Login, PrintPokemonPage, printTemplateDashboard } from "../pages";
 

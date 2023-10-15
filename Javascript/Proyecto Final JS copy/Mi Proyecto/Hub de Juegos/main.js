@@ -1,5 +1,5 @@
 import './style.css';
-import {initController} from "./utils";
+import {initController, initTemplate} from "./utils";
 
-// initTemplate(); // lanza función de pintar header, footer, y main
-initController("Login"); // lanza función de las direcciones
+initTemplate(); // lanza función de pintar header, footer, y main
+initController("Dashboard"); // lanza función de las direcciones

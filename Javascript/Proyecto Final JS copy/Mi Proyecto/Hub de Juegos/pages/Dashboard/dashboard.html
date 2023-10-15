@@ -1,8 +1,12 @@
-import "./Dashboard.css";
-import { initController } from "../../utils";
-
-const templateDashboard = () => `
-   <div class="dashboardcontainer">
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <div class="dashboardcontainer">
         <ul>
             <li>
                 <figure id="pokemonaccess">
@@ -24,16 +28,5 @@ const templateDashboard = () => `
             </li>
         </ul>
     </div>
-`
-
-const eventListeners = () => {
-    const pokemonAccess = document.getElementById("pokemonaccess");
-    pokemonAccess.addEventListener("click", () => {
-        initController("Pokemon");
-    });
-};
-
-const printmyTemplateDashboard = () => {
-    document.querySelector("main").innerHTML = templateDashboard();
-    eventListeners();
-}
+</body>
+</html>

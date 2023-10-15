@@ -1,9 +1,13 @@
+import { printmyTemplateDashboard } from "../pages";
+import { printTemplateHeader, printTemplateFooter } from "../components";
 import {Login} from "../pages"
 
 export const initController = (paginaRender) => {
     switch(paginaRender) {
         case "Dashboard":
-            "función que crea dash";
+            printTemplateHeader();
+            printTemplateFooter();
+            printmyTemplateDashboard();
             break;
         case "Pokemon":
             "función que crea pokemon";

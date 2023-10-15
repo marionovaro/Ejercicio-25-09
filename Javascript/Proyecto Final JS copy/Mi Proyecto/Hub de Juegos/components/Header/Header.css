@@ -1,0 +1,22 @@
+header {
+    height: 15vh;
+    width: 100vw;
+}
+
+.headercontainer{
+    height: 100%;
+    width: 100%;
+    background-color: blue;
+    /* position: absolute;
+    top: 0; */
+}
+
+.logocontainer{
+    height: 100%;
+    width: 50%;
+    border: 2px solid yellow;
+}
+
+.logocontainer img{
+    object-fit: contain;
+}
