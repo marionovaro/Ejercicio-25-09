@@ -1,16 +1,20 @@
-import { printmyTemplateDashboard } from "../pages";
+import { printmyTemplateDashboard, Login } from "../pages";
 import { printTemplateHeader, printTemplateFooter } from "../components";
-import {Login} from "../pages"
+import { getUser } from "../global/state/globalState";
+// import {Login} from "../pages"
+import { printPokemonPage } from "../pages/Pokemon/Pokemon";
 
 export const initController = (paginaRender) => {
     switch(paginaRender) {
+        case undefined:
+            localStorage.getItem(getUser().name) ? printmyTemplateDashboard() : Login()
         case "Dashboard":
-            printTemplateHeader();
-            printTemplateFooter();
+            // printTemplateHeader();
+            // printTemplateFooter();
             printmyTemplateDashboard();
             break;
         case "Pokemon":
-            "función que crea pokemon";
+            printPokemonPage();
             break;
         case "Login":
             Login()
