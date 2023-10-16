@@ -33,17 +33,29 @@ main {
             
                 & figure {
                     /* border: 1px solid black; */
-                    border-radius: 15px;
-                    /* display: flex;
-                    flex-direction: column; */
+                    /* border-radius: 15px; */
+                    display: flex;
+                    flex-direction: column;
+                    position: relative;
                     
-                        & img{
+                        & .juegos{
                             margin: 0px;
                             width: 100%;
                             object-fit: cover;
                             -webkit-clip-path: circle(65% at 50% 50%);
                             clip-path:  circle(63% at 50% 50%); 
-                    }
+                            z-index: 1;
+                        }
+
+                        & .letras{
+                            z-index: 2;
+                            position: absolute;
+                            width: 80%;
+                            left: 0px;
+                            right: 0px;
+                            bottom: -100px;
+                            margin: auto;
+                        }
                 }
             }    
         }
