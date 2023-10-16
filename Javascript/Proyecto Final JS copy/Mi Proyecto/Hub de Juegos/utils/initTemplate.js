@@ -9,7 +9,7 @@ export const initTemplate = () => {
     app.append(header, main, footer); // solamente estamos inyectando las etiquetas
     console.log(app)
    
-    main.style.height = "75vh";
+    // main.style.minHeight = "75vh;
 
     // printTemplateHeader(); // los llamamos para que se inyecten los codigos html (contenido)
     // printTemplateFooter();

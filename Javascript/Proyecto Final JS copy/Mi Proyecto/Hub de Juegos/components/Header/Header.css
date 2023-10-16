@@ -1,6 +1,10 @@
 header {
     height: 15vh;
     width: 100vw;
+    position: fixed;
+    top: 0px;
+    left: 0px;
+    z-index: 10;
 }
 
 .headercontainer{
@@ -9,15 +13,45 @@ header {
     background-color: #242424;
     /* position: absolute;
     top: 0; */
+    display: flex;
+    flex-direction: row;
 }
 
 .logocontainer{
     height: 100%;
     width: 50%;
     /* border: 2px solid yellow; */
+    display: flex;
+    align-items: center;
+    padding: 0 0 0 3%;
 }
 
 .logocontainer img{
     object-fit: contain;
+    height: 80%;
+}
+
+nav{
+    width: 50%;
     height: 100%;
+    display: flex;
+    flex-direction: row;
+    gap: 4%;
+    border: 1px solid yellow;
+    justify-content: flex-end;
+    align-items: center;
+}
+
+.colorchangecontainer, .backtodashboardcontainer, .logoutcontainer{
+    width: 20%;
+    border: 1px soid red;
+}
+
+.colorchangecontainer img{
+    width: 100%;
+
+}
+
+.backtodashboardcontainer img {
+    
 }
