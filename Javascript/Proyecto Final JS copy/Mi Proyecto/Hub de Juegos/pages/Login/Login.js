@@ -10,11 +10,25 @@ const templateLogin = () => `
         <h1>INTRODUCE TU NOMBRE!</h1>
     </div>
     <div class="contenido">
-        <input type="text" placeholder="Nombre y Apellido">
-        <button type="submit">👍🏽</button>
+        <input id="username" type="text" placeholder="Nombre y Apellido">
+        <button id="buttonlogin" type="submit">👍🏽</button>
     </div>
 </div>
 `
+
+const addListenersLogin = () => {
+    const buttonLogin = document.getElementById("buttonlogin");
+    const username = document.getElementById("username");
+    buttonLogin.addEventListener("click", () => {
+        const valueInput = username.value;
+        const userToLocalStorage = {
+            token: true,
+            name: valueInput,
+            fav: [],
+        };
+    })
+
+}
 
 
 export const Login = () => {

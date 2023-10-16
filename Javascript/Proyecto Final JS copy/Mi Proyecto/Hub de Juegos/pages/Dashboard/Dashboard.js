@@ -33,7 +33,7 @@ const eventListeners = () => {
     });
 };
 
-const printmyTemplateDashboard = () => {
+export const printmyTemplateDashboard = () => {
     document.querySelector("main").innerHTML = templateDashboard();
     eventListeners();
 }

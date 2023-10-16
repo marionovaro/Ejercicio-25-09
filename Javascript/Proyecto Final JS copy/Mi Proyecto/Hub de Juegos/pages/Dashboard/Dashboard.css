@@ -1,19 +1,42 @@
-main{
-    background-color: red;
+*{
+    margin: 0px;
+    padding: 0px;
+    box-sizing: border-box;
 }
-#containerdashboard{
+
+.dashboardcontainer, ul, figure{
     width: 100%;
     height: 100%;
+}
 
-    & ul{
-        display: flex;
-        flex-direction: row;
-        list-style: none;
 
-        & li figure{
-            width: 25%;
-            height: auto;
-            border: 1px solid black;
+main {
+    /* background-color: yellow; */
+    width: 100vw;
+
+    & .dashboardcontainer {
+        /* width: 100%;
+        height: 100%; */
+
+        & ul {
+            display: flex;
+            list-style: none;
+            justify-content: center;
+            flex-direction: row;
+            flex-wrap: wrap;
+            gap: 5%;
+            margin: 20px 0 0 0;
+
+            & li {
+                width: 300px;
+                height: 300px;
+            
+                & figure {
+                    background: black;
+                    border-radius: 15px;
+
+                }
+            }    
         }
     }
 }
