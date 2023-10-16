@@ -1,7 +1,18 @@
 footer{
     height: 10vh;
     width: 100vw;
-    background-color: red;
+    background-color: #242424;
     /* position: absolute;
     bottom: 0; */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 0 40px 0 40px;
+}
+
+h3{
+    color: white;
+    font-weight: 400;
+    font-size: 15px;
+    text-align: center;
 }

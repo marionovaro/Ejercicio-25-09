@@ -6,8 +6,8 @@ const templateDashboard = () => `
         <ul>
             <li>
                 <figure id="pokemonaccess">
-                    <img src="" alt="">
-                    <h2></h2>
+                        <img src="https://github.com/marionovaro/Ejercicio-25-09/blob/main/Imagenes/pokemon%20icon.png?raw=true" alt="">
+                        <img src="" alt="">
                 </figure>
             </li>
             <li>

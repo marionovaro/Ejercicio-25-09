@@ -6,7 +6,7 @@ header {
 .headercontainer{
     height: 100%;
     width: 100%;
-    background-color: blue;
+    background-color: #242424;
     /* position: absolute;
     top: 0; */
 }
@@ -14,9 +14,10 @@ header {
 .logocontainer{
     height: 100%;
     width: 50%;
-    border: 2px solid yellow;
+    /* border: 2px solid yellow; */
 }
 
 .logocontainer img{
     object-fit: contain;
+    height: 100%;
 }

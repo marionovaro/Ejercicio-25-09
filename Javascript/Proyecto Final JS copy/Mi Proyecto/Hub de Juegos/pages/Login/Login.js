@@ -4,7 +4,7 @@ import "./Login.css"
 const templateLogin = () => `
 <div class="containerlogin">
     <div class="containerlogo">
-        <img src="https://github.com/marionovaro/Ejercicio-25-09/blob/main/Javascript/Proyecto%20Final%20JS%20copy/Login/Logo%20Hub%20de%20Juegos.png?raw=true">
+        <img id="loginlogo" src="https://github.com/marionovaro/Ejercicio-25-09/blob/main/Javascript/Proyecto%20Final%20JS%20copy/Login/Logo%20Hub%20de%20Juegos.png?raw=true">
     </div>
     <div class="instruccion">
         <h1>INTRODUCE TU NOMBRE!</h1>
