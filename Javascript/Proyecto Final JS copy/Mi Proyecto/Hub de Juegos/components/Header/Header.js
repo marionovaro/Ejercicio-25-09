@@ -14,10 +14,10 @@ const templateHeader = () => `
                 <img src="https://github.com/marionovaro/Ejercicio-25-09/blob/main/Imagenes/color%20circle%20statis.png?raw=true" alt="">
             </div>
             <div class="backtodashboardcontainer">
-                <img src="https://github.com/marionovaro/Ejercicio-25-09/blob/main/Imagenes/gamepad(dashboard%20icon).gif?raw=true" alt="">
+                <img src="https://github.com/marionovaro/Ejercicio-25-09/blob/main/Imagenes/back%20to%20dashboard%20icon.png?raw=true" alt="">
             </div>
             <div class="logoutcontainer">
-                <img src="C:/Users/icust/OneDrive/Documentos/OneDrive/Documentos/Bootcamp Developer/logout icon.gif" alt="">
+                <img src="https://github.com/marionovaro/Ejercicio-25-09/blob/main/Imagenes/logout%20icon%202.png?raw=true" alt="">
             </div>
         </nav>
     </div>

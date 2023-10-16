@@ -53,5 +53,9 @@ nav{
 }
 
 .backtodashboardcontainer img {
-    
+    width: 100%;
+}
+
+.logoutcontainer img{
+    width: 100%;
 }
