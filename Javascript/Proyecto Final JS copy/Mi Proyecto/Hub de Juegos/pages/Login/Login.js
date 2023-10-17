@@ -52,8 +52,8 @@ const addListenersLogin = () => {
 
 
 export const Login = () => {
-    // document.querySelector("header").style.display = "none";
-    // document.querySelector("footer").style.display = "none";
+    document.querySelector("header").style.display = "none";
+    document.querySelector("footer").style.display = "none";
     document.querySelector("main").innerHTML = templateLogin();
     addListenersLogin();
 }

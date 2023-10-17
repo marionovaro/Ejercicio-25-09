@@ -9,8 +9,6 @@ export const initController = (paginaRender) => {
         case undefined:
             localStorage.getItem(getUser().name) ? printmyTemplateDashboard() : Login()
         case "Dashboard":
-            // printTemplateHeader();
-            // printTemplateFooter();
             printmyTemplateDashboard();
             break;
         case "Pokemon":

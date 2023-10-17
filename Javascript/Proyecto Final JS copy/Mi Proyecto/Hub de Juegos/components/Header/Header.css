@@ -47,18 +47,21 @@ nav{
 }
 
 .colorchangecontainer, .backtodashboardcontainer, .logoutcontainer{
-    width: 22%;
-    border: 1px soid red;
+    height: 75%;
+    display: flex;
+    align-items: center;
 }
 
-.colorchangecontainer img{
-    width: 100%;
+#colorchangebutton, #backtodashbutton, #logoutbutton{
+    height: 100%;
+    object-fit: contain;
 }
 
-.backtodashboardcontainer img {
-    width: 100%;
-}
-
-.logoutcontainer img{
-    width: 100%;
+@media screen and (max-width: 525px) {
+    .colorchangecontainer, .backtodashboardcontainer, .logoutcontainer{
+        width: 28%;
+    }
+    #colorchangebutton, #backtodashbutton, #logoutbutton{
+        width: 100%;
+    }
 }
