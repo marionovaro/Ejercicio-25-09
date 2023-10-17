@@ -12,7 +12,7 @@ export const initController = (paginaRender) => {
             printmyTemplateDashboard();
             break;
         case "Pokemon":
-            printPokemonPage();
+            // printPokemonPage();
             break;
         case "Login":
             Login()

@@ -1,4 +1,4 @@
-import {
+             import {
   PrintTemplateSpinner,
   CardsPokemons,
   PrintButton,
