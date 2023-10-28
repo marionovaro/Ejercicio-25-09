@@ -1,6 +1,7 @@
 const { deleteImgCloudinary } = require("../../middleware/files.middleware");
 const enumOk = require("../../utils/enumOk");
 const Bike = require("../models/Bike.model");
+const TypeBike = require("../models/TypeBike.model");
 
 //? CONTROLADORES DE LOS MODELOS
 
@@ -79,21 +80,19 @@ const getAll = async (req, res, next) =>  {
 };
 
 //! ---------------------------------------------------------------------
-//? --------------------------- GET BY MODEL -----------------------------
+//? --------------------------- GET BY MODEL ----------------------------
 //! ---------------------------------------------------------------------
 
 const getByModel = async (req, res, next) => { //? ----------------- es igual que el getById
     try {
         const {model} = req.params;
-        console.log(model)
-        const bikeByModel = Bike.find({model});
+        console.log(model + " hola")
+        const bikeByModel = await Bike.find({model});
+        // console.log(bikeByModel.length + "hola")
         if (bikeByModel.length > 0) {
             return res.status(200).json(bikeByModel);
         } else {
-            return res.status(404).json({
-                error: "no se han encontrado motos a través de model ❌",
-                message: error.message
-            })
+            return res.status(404).json("no se han encontrado motos a través de model ❌")
         }
     } catch (error) {
         return res.status(404).json({
@@ -147,7 +146,7 @@ const update = async (req, res, next) => {
             let test = []; //? ------------------------------------- objeto vacío donde meter los tests. estará compuesta de las claves de los elementos y los valores seran true/false segun haya ido bien o mal
 
             elementUpdate.forEach((key) => { //? ------------------ recorremos las claves de lo que se quiere actualizar
-                if (req.body[key] === bikeByIdUpdated) { //? ---------- si el valor de la clave en la request (el valor actualizado que hemos pedido meter) es el mismo que el que hay ahora en el elemento ---> está bien
+                if (req.body[key] === bikeByIdUpdated[key]) { //? ---------- si el valor de la clave en la request (el valor actualizado que hemos pedido meter) es el mismo que el que hay ahora en el elemento ---> está bien
                     test[key] = true; //? ----------------------------- está bien hecho por lo tanto en el test ponemos true --> test aprobado hehe
                 } else {
                     test[key] = false; //? ---------------------------- algo ha fallado y por lo tanto el test está suspendido (false)
@@ -192,16 +191,25 @@ const update = async (req, res, next) => {
 const deleteBike = async (req, res, next) => {
     try {
         const {id} = req.params;
-        const bike = await Bike.findByIdAndDelete(id);
+        const bike = await Bike.findByIdAndDelete(id); //? buscamos la moto y la eliminamos
 
-        if (nose) {
-            const findByIdBike = await Bike.findById(id);
+        if (bike) {
+            const findByIdBike = await Bike.findById(id); //? hemos encontrado esta moto? no debería existir porque  la hemos eliminado en 2 lineas antes
+
+            try {
+                const test = await TypeBike.updateMany(
+                    {bikes: id},
+                    {$pull: {bikes: id}}
+                )
+            } catch (error) {
+                
+            }
             
-            return res.status(findByIdBike ? 404 : 200).json({
-                deleteTest: findByIdBike ? false : true,
+            return res.status(findByIdBike ? 404 : 200).json({ //? si se encuentra hay un error, porque no se ha eliminado
+                deleteTest: findByIdBike ? false : true, //? si existe el test ha dado fallo y si no existe ha aprobado el test
             });
         } else {
-            return res.status(404).json("esta moto no existe ❌");
+            return res.status(404).json("esta moto no existe ❌"); //? si no existe la moto antes de eliminarla hay que dar error porque la moto seleccionada para borrar no existia en un primer momento
         }
     } catch (error) {
         return res.status(404).json(error);

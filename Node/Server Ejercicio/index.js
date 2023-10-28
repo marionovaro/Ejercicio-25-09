@@ -18,6 +18,8 @@ const PORT = process.env.PORT
 
 //! 4. --------- CREAMOS SERVIDOR WEB
 const app = express();
+const cors = require("cors");
+app.use(cors());
 
 //! 5. --------- LIMITACIONES DE CANTIDAD EN EL BACKEND
 app.use(express.json({ limit: "5mb" }));
@@ -28,7 +30,7 @@ const BikeRoutes = require("./src/api/routes/Bike.routes");
 app.use("/api/v1/bikes/", BikeRoutes)
 
 const TypeBikeRoutes = require("./src/api/routes/TypeBike.routes");
-app.use("/api/v1/typebike", TypeBikeRoutes);
+app.use("/api/v1/typebike/", TypeBikeRoutes);
 
 
 //! 7. --------- ERRORES

@@ -9,7 +9,6 @@ const registerLargo = async (req, res) => {
         await User.syncIndexes();
         const confirmationCode = randomCode();//? generamos el código de confirmación
         const {name, email} = req.body;
-        console.log(confirmationCode + " HOLA SOY EL CONFRIMATION CODE")
 
         const userExist = await User.findOne( //? estamos buscando si ya hay un usuario con este email o con este nombre para que si ya existe yo no pueda registrarlo. el findOne te encuentra un solo elemento, el find te da un array con todas las coincidencias con la condición que tu le des
             {email: req.body.email}, //? las condiciones que tiene que cumplir el supuesto usuario si ya existe
@@ -71,4 +70,4 @@ const registerLargo = async (req, res) => {
     }
 }
 
-module.exports = {registerLargo};
+module.exports = registerLargo;
