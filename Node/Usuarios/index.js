@@ -27,7 +27,7 @@ app.use(express.urlencoded({ limit: "5mb", extended: false }));
 
 //! 6. --------- RUTAS
 const UserRoutes = require("./src/api/routes/User.routes");
-app.use("api/v1/users/", UserRoutes);
+app.use("/api/v1/users/", UserRoutes);
 
 //! 7. --------- ERRORES
 //------- ERR0R: RUTA NO ENCONTRADA

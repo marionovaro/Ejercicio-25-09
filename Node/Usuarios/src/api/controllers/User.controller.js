@@ -3,11 +3,11 @@ const randomCode = require("../../utils/randomCode");
 const User = require("../models/User.model");
 const nodemailer = require("nodemailer")
 
-const registerLargo = async (req, res) => {
+const registerLargo = async (req, res, next) => {
     let catchImg = req.file?.path;
     try {
         await User.syncIndexes();
-        const confirmationCode = randomCode();//? generamos el código de confirmación
+        let confirmationCode = randomCode();//? generamos el código de confirmación
         const {name, email} = req.body;
         console.log(confirmationCode + " HOLA SOY EL CONFRIMATION CODE")
 
