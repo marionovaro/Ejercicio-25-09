@@ -5,8 +5,8 @@ const Schema = mongoose.Schema; //? ESQUEMAS DE DATOS
 
 const BikesSchema = new Schema( //? DEFINICIÓN DE DATOS
     {
-        mark: {type: String, required: false, unique: false},
-        model: {type: String, required: false, unique: false},
+        mark: {type: String, required: true, unique: false},
+        model: {type: String, required: true, unique: false},
         engine: {type: Number, required: false, unique: false},
         year: {type: Number, required: false, unique: false},
         image: {type: String, required: false, unique: false},

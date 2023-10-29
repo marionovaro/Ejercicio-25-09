@@ -21,13 +21,24 @@ const create = async (req, res, next) => {
             newBike.image = "https://www.svgrepo.com/show/9746/motorcycle-of-big-size-black-silhouette.svg"
         }
 
-    const saveBike = await newBike.save(); //? ---------------------- GUARDAMOS LA MOTO EN LA BASE DE DATOS (DB) O BACKEND
-        if (saveBike) { 
-            res.status(200).json(saveBike);
-        } else {
-            return res.status(404).json("No se ha podido guardar el elemento en la DB ❌")
-        }
-        
+        const saveBike = await newBike.save(); //? ---------------------- GUARDAMOS LA MOTO EN LA BASE DE DATOS (DB) O BACKEND
+            if (saveBike) { 
+                res.status(200).json(saveBike);
+            } else {
+                return res.status(404).json("No se ha podido guardar el elemento en la DB ❌")
+            }
+        //! ----------------- INTENTO RECIPROCIDAD EN EL CREATE ----------------
+        const {id} = req.params
+        const typebikeofBike = req.body?.type
+        if (typebikeofBike) {
+            console.log("se ha creado moto con tipo asignado")
+            console.log(id)
+            const updateTypes = await TypeBike.updateMany(
+                {bikes: id},
+                {$push: {bikes: id}}
+            )
+        } //! ------------------------------------------------------------------
+
     } catch (error) { //? ------------------------ si ha habido un error subiendo la imagen, hay que borrarla, ya que ya se ha subido a cloudinary. Se ha hecho en la primera línea de esta función
         req.file?.path ? deleteImgCloudinary(catchImg) : null;
         return res.status(404).json({
@@ -36,8 +47,6 @@ const create = async (req, res, next) => {
         }) && next(error)
     }
 };
-
-module.exports = {create}
 
 //! ---------------------------------------------------------------------
 //? ---------------------------- GET BY ID ------------------------------
@@ -198,12 +207,12 @@ const deleteBike = async (req, res, next) => {
 
             try {
                 const test = await TypeBike.updateMany(
-                    {bikes: id},
-                    {$pull: {bikes: id}}
+                    {bikes: id}, //? queremos cambiar lo que sea que haya que cambiar en esta propiedad del model, si se omite se dice que se cambia cualquier conincidencia en todo el modelo
+                    {$pull: {bikes: id}} //? estamos diciendo que quite de la propiedad bikes, el id indicado, es decir el de la moto que se ha eliminado
                 )
             } catch (error) {
                 
-            }
+            } //! ------ PREGUNTAR SI HACE FALTA EL TRYCATCH SI NO USAMOS EL CATCH??????????????
             
             return res.status(findByIdBike ? 404 : 200).json({ //? si se encuentra hay un error, porque no se ha eliminado
                 deleteTest: findByIdBike ? false : true, //? si existe el test ha dado fallo y si no existe ha aprobado el test

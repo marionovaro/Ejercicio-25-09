@@ -207,6 +207,10 @@ const deleteTypeBike = async (req, res, next) => {
         const typebike = await TypeBike.findByIdAndDelete(id);
         if (typebike) {
             const findByIdTypeBike = await TypeBike.findById(id);
+            const test = await Bike.updateMany(
+                {type: id},
+                {$pull: {type: id}}
+            )
 
             return res.status(findByIdTypeBike ? 404 : 200).json({deleteTest: findByIdTypeBike ? false : true})
         } else {
