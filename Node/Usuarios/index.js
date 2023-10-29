@@ -29,7 +29,6 @@ app.use(express.urlencoded({ limit: "5mb", extended: false }));
 const UserRoutes = require("./src/api/routes/User.routes");
 app.use("api/v1/users/", UserRoutes);
 
-
 //! 7. --------- ERRORES
 //------- ERR0R: RUTA NO ENCONTRADA
 app.use(".", (req, res, next) =>{
@@ -40,8 +39,10 @@ app.use(".", (req, res, next) =>{
 
 //------ ERROR: CRASH DEL SERVIDOR
 app.use((error, req, res) => {
-    // return res.status(error.status || 500).json(error.message || "unexpected error")
-});
+    return res
+      .status(error.status || 500)
+      .json(error.message || 'unexpected error');
+  });
 
 //! 8. -------- ESCUCHAMOS EN EL PUERTO EL SERVIDOR WEB
 app.disable("x-powered-by"); //? ----- nos dice con qué tecnologia esta hecho el backend
