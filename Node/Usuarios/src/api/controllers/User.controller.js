@@ -9,7 +9,7 @@ const registerLargo = async (req, res, next) => {
         await User.syncIndexes();
         let confirmationCode = randomCode();//? generamos el código de confirmación
         const {name, email} = req.body;
-        console.log(confirmationCode + " HOLA SOY EL CONFRIMATION CODE")
+        console.log(confirmationCode + " --> CONFRIMATION CODE")
 
         const userExist = await User.findOne( //? estamos buscando si ya hay un usuario con este email o con este nombre para que si ya existe yo no pueda registrarlo. el findOne te encuentra un solo elemento, el find te da un array con todas las coincidencias con la condición que tu le des
             {email: req.body.email}, //? las condiciones que tiene que cumplir el supuesto usuario si ya existe
@@ -34,7 +34,7 @@ const registerLargo = async (req, res, next) => {
                             user: emailEnv,
                             pass: password
                         }
-                    })
+                    });
 
                     const mailOptions = { //? igual que el transporter, no lo escribo yo
                         from: emailEnv,
@@ -48,22 +48,23 @@ const registerLargo = async (req, res, next) => {
                             console.log(error)
                             return res.status(404).json({user: userSave, confirmationCode: "error, resend Code"}) //? si ha habido un error le decimos que lo vuelva a enviar
                         } else {
-                            console.log(info) //? --------------------------------------------- la info nos da la respuesta del envío, si se ha hecho bien
-                            return res.status(200).json({user: userSave, confirmationCode}) //? en este caso le decimos que se ha guardado el usuario y que el confirmationcode se ha enviado correctamente
+                            console.log("Email sent: " + info.response) //? ------------------- la info nos da la respuesta del envío, si se ha hecho bien
+                            return res.status(200).json({user: savedUser, confirmationCode}) //? en este caso le decimos que se ha guardado el usuario y que el confirmationcode se ha enviado correctamente
                         }
                     })
                 }
             } catch (error) {
+                req.file && deleteImgCloudinary(catchImg);
                 return res.status(404).json({message: "error en el catch del save", error: error.message})
             }
 
         } else { //? si el usuario ya existe: 
-            req.file?.path && deleteImgCloudinary(catchImg) //? como ha habido un error (intento de register ya estando register) si se ha subido una imagen hay que borrarla para que no quede basura en el backend sin usar
-            return res.status(404).json("this user already exists!")
+            if (req.file) deleteImgCloudinary(catchImg) //? como ha habido un error (intento de register ya estando register) si se ha subido una imagen hay que borrarla para que no quede basura en el backend sin usar
+            return res.status(409).json("this user already exists!")
         }
 
     } catch (error) {
-        req.file?.path && deleteImgCloudinary(catchImg) //? como ha habido un error (intento de register ya estando register) si se ha subido una imagen hay que borrarla para que no quede basura en el backend sin usar
+        req.file && deleteImgCloudinary(catchImg) //? como ha habido un error (intento de register ya estando register) si se ha subido una imagen hay que borrarla para que no quede basura en el backend sin usar
         return res.status(404).json({
              message: "error en el catch",
              error: error.message
