@@ -350,7 +350,7 @@ const sendPassword = async (req, res, next) => {
     try {
         const {email} = req.body
         const userDB = await User.findOne({email})
-        // const passwordSecure 
+        const passwordSecure = "aun no lo se"
     } catch (error) {
         
     }
