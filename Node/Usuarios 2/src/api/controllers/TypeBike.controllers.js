@@ -1,5 +1,6 @@
 const Bike = require("../models/Bike.model");
 const TypeBike = require("../models/TypeBike.model");
+const User = require("../models/User.model");
 
 //? CONTROLADORES DE LOS MODELOS
 

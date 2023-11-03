@@ -1,15 +1,30 @@
-const setError = require("../../helpers/handle-error");
-const sendEmail = require("../../utils/sendEmail")
+//! -------- MIDDLEWARE ----------
 const { deleteImgCloudinary } = require("../../middleware/files.middleware");
-const { getSendEmail, setSendEmail } = require("../../state/state.data");
+
+//! -------- UTILS -----------
+const { generateToken } = require("../../utils/token");
+const sendEmail = require("../../utils/sendEmail")
 const randomCode = require("../../utils/randomCode");
 const randomPassword = require("../../utils/randomPassword");
-const User = require("../models/User.model");
+const enumOk = require("../../utils/enumOk");
+
+//! -------- ESTADOS ----------
+const { getSendEmail, setSendEmail } = require("../../state/state.data");
+
+//! -------- LIBRERIAS ----------
 const nodemailer = require("nodemailer");
-const { generateToken } = require("../../utils/token");
 const bcrypt = require("bcrypt")
 const validator = require("validator");
-const enumOk = require("../../utils/enumOk");
+
+//! --------- HELPERS --------
+const setError = require("../../helpers/handle-error");
+
+//! --------- MODELOS --------
+const User = require("../models/User.model");
+const TypeBike = require("../models/TypeBike.model");
+const Bike = require("../models/Bike.model");
+
+//todo -------------------------------------------------------------------------------------------------------
 
 //! ------------------------ REGISTER LARGO -----------------------------
 const registerLargo = async (req, res, next) => {

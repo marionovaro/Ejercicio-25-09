@@ -45,6 +45,9 @@ const UserSchema = new mongoose.Schema(
           image: {
             type: String,
           },
+          typebikeFav: [{type: mongoose.Schema.Types.ObjectId, ref: "TypeBike"}],
+          bikesFav: [{type: mongoose.Schema.Types.ObjectId, ref: "Bike"}],
+          fans: [{type: mongoose.Schema.Types.ObjectId, ref: "User"}]
     },
     {
         timestamps: true,
