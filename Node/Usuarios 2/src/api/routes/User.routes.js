@@ -13,7 +13,8 @@ const {registerLargo,
         exampleAuth,
         modifyPassword,
         update,
-        deleteUser
+        deleteUser,
+        addFavTypeBike
 } = require("../controllers/User.controller");
 
 const UserRoutes = require("express").Router()
@@ -32,6 +33,7 @@ UserRoutes.get("/pruebas", [isAuth], exampleAuth);
 UserRoutes.patch("/changepassword", [isAuth], modifyPassword)
 UserRoutes.patch("/update/update", [isAuth], upload.single("image"), update)
 UserRoutes.delete("/", [isAuth], deleteUser)
+UserRoutes.patch("/toggleTypeBike/:idTypeBike", addFavTypeBike)
 
 //!-----> Controladores de redirect
 UserRoutes.post("/register/sendMail/:id", sendCode);

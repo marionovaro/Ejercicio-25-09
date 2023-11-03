@@ -525,10 +525,55 @@ const deleteUser = async (req, res, next) => {
         // const {_id, image} = req.user; //? el destructuring no lo hacemos por la explicación que pongo mas adelante
         await User.findByIdAndDelete(req.user?.id) 
         deleteImgCloudinary(req.user?.image);
-        const existUser = await User.findById(req.user?._id); //? le hemos puesto el req.user?._id en vez de solamente _id para que cuando intentemos borrar un elemento que no existe no rompa
-        return res.status(existUser ? 404 : 200).json({deleteTest: existUser ? false : true}) //? `ponemos con ternarios los errores o exitos
+        try {
+            await TypeBike.updateMany(
+                {likes: req.user?._id},
+                {$pull: {likes: req.user?._id}}
+            );
+            try {
+                await Bike.updateMany(
+                    {likes: req.user?._id},
+                    {$pull: {likes: req.user?._id}}
+                )
+                const existUser = await User.findById(req.user?._id); //? le hemos puesto el req.user?._id en vez de solamente _id para que cuando intentemos borrar un elemento que no existe no rompa
+                return res.status(existUser ? 404 : 200).json({deleteTest: existUser ? false : true}) //? `ponemos con ternarios los errores o exitos
+            } catch (error) {
+                return res.status(404).json({message: "Error catch delete en Bike", error: error.message})
+            }
+        } catch (error) {
+            return res.status(404).json({message: "Error catch delete en TypeBike", error: error.message})
+        }
     } catch (error) {
         return next(setError(500, error.message || "Error general en el catch del DELETE"))
+    }
+}
+
+//! ------------------- ADD FAV MOVIE ----------------------
+const addFavTypeBike = async (req, res, next) => {
+    try {
+        const {idTypeBike} = req.params;
+        const {_id, typebikeFav} = req.user;
+
+        if (req.user.typebikeFav.includes(idTypeBike)){ //? si en el los favoritos del user ya esta el tipo de moto: (pull) o (push)
+            try {
+                await User.findByIdAndUpdate(_id, {
+                    $pull: {typebikeFav: idTypeBike}
+                });
+                try {
+                    await Movie.findByIdAndUpdate(idTypeBike, {
+                        $pull: {likes: _id}
+                    });
+                } catch (error) {
+
+                }
+            } catch (error) {
+                return res.status(404).json({message: "", error: error.message})
+            }
+        } else {
+
+        }
+    } catch (error) {
+        return next(setError(500, error.message || "Error general al añadir a Favoritos ❤️❌"))
     }
 }
 
@@ -547,5 +592,6 @@ module.exports = {
     exampleAuth,
     modifyPassword,
     update,
-    deleteUser
+    deleteUser,
+    addFavTypeBike
 };
