@@ -16,8 +16,9 @@ const TeamSchema = new Schema(
         stadium: {type: String, required: false},
         image: {type: String, required: false}, 
 
+        players: [{type: mongoose.Schema.Types.ObjectId, ref: "Player"}],
         ninetyplayers: [{type: mongoose.Schema.Types.ObjectId, ref: "Player"}],
-        likes: [{type: mongoose.Schema.Types.ObjectId, ref: "User"}],
+        likes: [{type: mongoose.Schema.Types.ObjectId, ref: "User"}]
     },
     {
         timestamps: true

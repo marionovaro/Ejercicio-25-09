@@ -21,6 +21,7 @@ const PlayerSchema = new Schema(
         },
         image: {type: String, required: false},
 
+        team: [{type: mongoose.Schema.Types.ObjectId, ref: "Team"}],
         trophies: {type: mongoose.Schema.Types.ObjectId, ref: "Team"} + {type: mongoose.Schema.Types.ObjectId, ref: "National"},
         likes: [{type: mongoose.Schema.Types.ObjectId, ref: "User"}],
         selected: [{type: mongoose.Schema.Types.ObjectId, ref: "User"}],
