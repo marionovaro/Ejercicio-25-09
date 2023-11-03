@@ -511,7 +511,7 @@ const deleteUser = async (req, res, next) => {
         await User.findByIdAndDelete(req.user?.id) 
         deleteImgCloudinary(req.user?.image);
         const existUser = await User.findById(req.user?._id); //? le hemos puesto el req.user?._id en vez de solamente _id para que cuando intentemos borrar un elemento que no existe no rompa
-        return res.status(existUser ? 404 : 200).json({deleteTest: existUser ? false : true})
+        return res.status(existUser ? 404 : 200).json({deleteTest: existUser ? false : true}) //? ponemos con ternarios los errores o exitos
     } catch (error) {
         return next(setError(500, error.message || "Error general en el catch del DELETE"))
     }
