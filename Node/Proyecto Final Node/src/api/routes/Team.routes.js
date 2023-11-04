@@ -7,7 +7,8 @@ const {
     getByName,
     update,
     deleteTeam,
-    getFavTeams
+    sortTeamsbyPoints,
+    sortTeamsbyNetWorth
 } = require("../controllers/Team.controller");
 
 const TeamRoutes = require("express").Router();
@@ -20,6 +21,7 @@ TeamRoutes.get("/byName/:name", getByName);
 TeamRoutes.patch("/:id", upload.single("image"), update);
 TeamRoutes.delete("/:id", deleteTeam);
 
-TeamRoutes.get("/favTeams/:userId", getFavTeams)
+TeamRoutes.get("/sortbypoints/teams", sortTeamsbyPoints)
+TeamRoutes.get("/sortbynetworth/teams", sortTeamsbyNetWorth)
 
 module.exports = TeamRoutes

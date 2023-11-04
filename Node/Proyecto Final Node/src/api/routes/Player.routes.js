@@ -5,7 +5,7 @@ const {
     getAll,
     getByName,
     update,
-    deletePlayer
+    deletePlayer,
 } = require("../controllers/Player.controller");
 
 const PlayerRoutes = require("express").Router();
@@ -16,5 +16,6 @@ PlayerRoutes.get("/", getAll);
 PlayerRoutes.get("/byName/:name", getByName);
 PlayerRoutes.patch("/:id", upload.single("image"), update);
 PlayerRoutes.delete("/:id", deletePlayer);
+
 
 module.exports = PlayerRoutes

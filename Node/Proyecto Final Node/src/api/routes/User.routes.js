@@ -19,7 +19,8 @@ const {registerLargo,
         deleteUser,
         addFavTeam,
         addFavPlayer,
-        getFavTeams
+        getFavTeams,
+        getFavPlayers
 } = require("../controllers/User.controller");
 
 const UserRoutes = require("express").Router()
@@ -43,7 +44,9 @@ UserRoutes.patch("/update/update", [isAuth], upload.single("image"), update)
 UserRoutes.delete("/", [isAuth], deleteUser)
 UserRoutes.patch("/toggleTeam/:idTeam", [isAuth], addFavTeam)
 UserRoutes.patch("/togglePlayer/:idPlayer", [isAuth], addFavPlayer)
+
 UserRoutes.get("/favTeams/:id", [isAuth], getFavTeams)
+UserRoutes.get("/favPlayers/:id", [isAuth], getFavPlayers)
 
 //!-----> Controladores de redirect
 UserRoutes.post("/register/sendMail/:id", sendCode);

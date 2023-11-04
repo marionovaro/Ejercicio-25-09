@@ -716,34 +716,32 @@ const addFavPlayer = async (req, res, next) => {
 }
 
 //! ------------------- GET FAV TEAMS ----------------------
-// const getFavTeams = async (req, res, next) => {
-//     try {
-//         const id = req.params
-//         const {favTeams} = req.user
-//         console.log({favTeams})
-//         const allFavTeams = await User.find({favTeams})
-//         console.log(allFavTeams)
-//         return res
-//             .status(allFavTeams.length > 0 ? 200 : 404)
-//             .json(allFavTeams.length > 0 ? allFavTeams : "No se han encontrado equipos favoritos en el usuario ❌")
-//     } catch (error) {
-//         return next(setError(500, error.message || "Error general al buscar Equipos Favoritos ❤️❌"))
-//     }
-// }
 const getFavTeams = async (req, res, next) => {
     try {
-        console.log("entro")
-        const id = req.params //? id del user por el param, vamos a buscar los favteams de este user
-        const userById = await User.findById(id) //? encontramos el user por el id
-        const usersFavTeams = userById.favTeams
-        console.log(usersFavTeams)
-        const showTeams = await Team.find({_id: usersFavTeams})
-        console.log(showTeams)
+        const {id} = req.params //?----------------------------------- id del user por el param, vamos a buscar los favteams de este user
+        const userById = await User.findById(id) //?------------------ encontramos el user por el id
+        const usersFavTeams = userById.favTeams //?------------------- guardamos en variable los equipos favoritos encontrando su direccion
+        const showTeams = await Team.find({_id: usersFavTeams}) //? -- le decimos que a los modelos de team que tengan los id que hemos encontrado en el usuario del param, nos los muestre
         return res
             .status(showTeams.length > 0 ? 200 : 404)
-            .json(showTeams.length > 0 ? showTeams : "No se han encontrado equipos favoritos en el usuario ❌")
+            .json(showTeams.length > 0 ? showTeams : "No se han encontrado equipos favoritos en el usuario ❌") //? se podría mirar de hacer que devolviese solo algunas claves, o el nombre, etc...
     } catch (error) {
         return next(setError(500, error.message || "Error general al buscar Equipos Favoritos ❤️❌"))
+    }
+}
+
+//! ------------------- GET FAV PLAYERS ----------------------
+const getFavPlayers = async (req, res, next) => {
+    try {
+        const {id} = req.params //?----------------------------------------- id del user por el param, vamos a buscar los favplayers de este user
+        const userById = await User.findById(id) //?------------------------ encontramos el user por el id
+        const usersFavPlayers = userById.favPlayers //?--------------------- guardamos en variable los jugadores favoritos encontrando su direccion
+        const showPlayers = await Player.find({_id: usersFavPlayers}) //? -- le decimos que nos muestre los modelos de player que tengan los id que hemos encontrado en el usuario del param
+        return res
+            .status(showPlayers.length > 0 ? 200 : 404)
+            .json(showPlayers.length > 0 ? showPlayers : "No se han encontrado jugadores favoritos en el usuario ❌") //? se podría mirar de hacer que devolviese solo algunas claves, o el nombre, etc...
+    } catch (error) {
+        return next(setError(500, error.message || "Error general al buscar Jugadores Favoritos en el Usuario ❤️❌"))
     }
 }
 
@@ -768,5 +766,6 @@ module.exports = {
     deleteUser,
     addFavTeam,
     addFavPlayer,
-    getFavTeams
+    getFavTeams,
+    getFavPlayers
 };

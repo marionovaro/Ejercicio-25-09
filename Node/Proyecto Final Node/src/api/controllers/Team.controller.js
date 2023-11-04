@@ -93,6 +93,7 @@ const togglePlayer = async (req, res, next) => {
 
 //! --------------- GET by ID ----------------
 const getById = async (req, res, next) => {
+    // console.log("entro")
     try {
         const {id} = req.params;
         const teamById = await Team.findById(id); //? cogemos el elemento (equipo) identificandola a través del id, que es único
@@ -254,25 +255,45 @@ const deleteTeam = async (req, res, next) => {
     }
 };
 
-//! ------------------- GET FAV TEAMS ----------------------
-const getFavTeams = async (req, res, next) => {
+//! --------------- SORT by POINTS and SHOW SELECTED INFO ----------------
+const sortTeamsbyPoints = async (req, res, next) => {
     try {
-        const {userId} = req.params
-        // const {favTeams} = req.user
-        // console.log({favTeams})
-        const userById = await User.findById(userId)
-        const usersFavTeams = userById.favTeams
-        console.log(usersFavTeams)
-        const showTeams = await Team.find({_id: usersFavTeams})
-        console.log(showTeams)
+        const teamsArray = await Team.find()
+        teamsArray.sort((a, b) => {
+            return b.points - a.points //? le decimos que ordene de manera descendiente (ascendiente sería a - b)
+        })
+        const arrayResumido = teamsArray.map((team) => ({ //? que nos muestre solo esta información para no tener ese montón de datos, solo lo relevante
+            name: team.name,
+            points: team.points,
+            league: team.league
+        }))
         return res
-            .status(showTeams.length > 0 ? 200 : 404)
-            .json(showTeams.length > 0 ? showTeams : "No se han encontrado equipos favoritos en el usuario ❌")
+        .status(arrayResumido.length > 0 ? 200 : 404)
+        .json(arrayResumido.length > 0 ? arrayResumido : "No se han encontrado equipos en la DB/BackEnd ❌")
     } catch (error) {
-        return next(setError(500, error.message || "Error general al buscar Equipos Favoritos ❤️❌"))
+        return next(setError(500, error.message || "Error general al ordenar Equipos por Puntos ❌"))
     }
 }
 
+//! --------------- SORT by NET WORTH ----------------
+const sortTeamsbyNetWorth = async (req, res, next) => {
+    try {
+        const teamsArray = await Team.find()
+        teamsArray.sort((a, b) => {
+            return b.networth - a.networth
+        })
+        const arrayResumido = teamsArray.map((team) => ({
+            name: team.name,
+            networth: team.networth,
+            league: team.league
+        }))
+        return res
+        .status(arrayResumido.length > 0 ? 200 : 404)
+        .json(arrayResumido.length > 0 ? arrayResumido : "No se han encontrado equipos en la DB/BackEnd ❌")
+    } catch (error) {
+        return next(setError(500, error.message || "Error general al ordenar Equipos por Valor ❌"))
+    }
+}
 
 
 
@@ -284,5 +305,6 @@ module.exports = {
     getByName,
     update,
     deleteTeam,
-    getFavTeams
+    sortTeamsbyPoints,
+    sortTeamsbyNetWorth
 }
