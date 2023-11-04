@@ -27,6 +27,68 @@ const create = async (req, res, next) => {
     }
 };
 
+//! --------------- TOGGLE ----------------
+const togglePlayer = async (req, res, next) => {
+    try {
+        const {id} = req.params; //? ---------------------------- obtenemos el id del equipo que queremos cambiar
+        const {players} = req.body; //? ------------------------- enviaremos esto por el req.body "12412242253,12535222232,12523266346", que son los id de los jugadores del equipo
+        const teamById = await Team.findById(id); //? ----------- guardamos en variable el equipo buscado por id
+        if (teamById) { //? ------------------------------------- si equpio existe:
+            const arrayIdPlayers = bikes.split(",") //? --------- los id de los jugadores que metemos en el body (4a linea funcion) las metemos en un array y las separamos por comas
+            Promise.all(
+                arrayIdPlayers.map(async (player) => { //? ------ recorremos el array que hemos creado lleno de players
+                    if (teamById.players.includes(player)) { //?- si el jugador ya está dentro del tipo de moto:     
+                        console.log("Lo incluyo")
+                        //todo ---------- SACAMOS - $PULL ------------- !// (sacamos el jugador del equipo (está dentro de un array en forma de id, y sacamos este id))
+                        try {
+                            await Team.findByIdAndUpdate(id, {
+                                $pull: { players: player} //? -------------- dentro de la clave players me vas a sacar el id del elemento que estoy recorriendo (player)
+                            })
+
+                            try { //? ------------------- ahora ya hemos sacado el jugador del equipo, ahora SACAMOS EL EQUIPO DEL ELEMENTO JUGADOR --> elementos relacionados entre sí (si uno no tiene el otro, el otro no tiene uno)
+                                await Player.findByIdAndUpdate(player, {
+                                    $pull: { team: id }, //? -------------- hemos sacado el id del equipo dentro del elemento jugador (para que si messi no está en fcb, fcb no esté en messi)
+                                })
+                            } catch (error) {
+                                res.status(404).json({message: "Error al quitar el Equipo, del Jugador", error: error.message})
+                            }
+                        } catch (error) {
+                            res.status(404).json({message: "Error al quitar el Jugador, del Equipo", error: error.message});
+                        }
+                    } else {
+                         //todo ---------- METEMOS - $PUSH ------------- !// (metemos el jugador en el equipo (dentro de un array en forma de id, metemos este id))
+                         try {
+                            await Team.findByIdAndUpdate(id, {
+                                $push: { players: player} //? -------------- dentro de la clave players (de Team) me vas a añadir el id del elemento que estoy recorriendo (player)
+                            })
+
+                            try { //? ------------------- ahora ya hemos metido el jugador al equipo, ahora METEMOS EL EQUIPO EN EL ELEMENTO JUGADOR --> elementos relacionados entre sí (si uno no tiene el otro, el otro no tiene uno)
+                                await Player.findByIdAndUpdate(player, {
+                                    $push: { team: id }, //? -------------- hemos metido el id del equipo dentro del elemento jugador (para que si messi está en fcb, fcb esté en messi)
+                                })
+                            } catch (error) {
+                                res.status(404).json({message: "Error al añadir el Equipo, al Jugador", error: error.message})
+                            }
+                        } catch (error) {
+                            res.status(404).json({message: "Error al añadir el Jugador, al Equipo", error: error.message});
+                        }
+                    }
+                })
+            ).then(async () => {
+                return res.status(200).json({
+                    dataUpdate: await Team.findById(id).populate("players"), //? mostramos el equipo que ya tiene los cambios hechos / el populate es para que no solo muestre los id
+                });
+            });
+        } else {
+            res.status(404).json("este equipo no existe ❌")
+        }
+    } catch (error) {
+        return (
+            res.status(404).json({message: "error en el buscado - catch", error: error.message})
+        );
+    }
+};
+
 //! --------------- GET by ID ----------------
 const getById = async (req, res, next) => {
     try {
@@ -192,6 +254,7 @@ const deleteTeam = async (req, res, next) => {
 
 module.exports = {
     create,
+    togglePlayer,
     getById,
     getAll,
     getByName,
