@@ -18,7 +18,7 @@ const create = async (req, res, next) => {
         const savePlayer = await newPlayer.save(); //? ---------------------- GUARDAMOS EL JUGADOR EN LA BASE DE DATOS (DB) O BACKEND
         //todo ----------------- INTENTO RECIPROCIDAD EN EL CREATE ---------------- 
         const id = savePlayer._id //? obtenemos el id a través de _id (FORMA PARA OBTENER EL ID)
-        const playersTeam = req.body?.type
+        const playersTeam = req.body?.team
         if (playersTeam) {
             const updateTypes = await Team.findByIdAndUpdate(playersTeam, //? 1r param: el id del elemento que vamos a modificar (añadirle los players)
                 {players: id} //? ------------------------------------------- 2o param: le metemos el id del jugador que estamos creando a la propiedad player del team que hemos puesto en el body
@@ -58,8 +58,7 @@ const getById = async (req, res, next) => {
 //! --------------- GET ALL ----------------
 const getAll = async (req, res, next) =>  {
     try {
-        const allPlayers = await Players.find() //? ------------- el find() nos devuelve un array con todos los elementos de la colección del BackEnd, es decir, TODOS LOS JUGADORES
-        console.log(allPlayers)
+        const allPlayers = await Player.find() //? ------------- el find() nos devuelve un array con todos los elementos de la colección del BackEnd, es decir, TODOS LOS JUGADORES
         if (allPlayers.length > 0) {  //? --------------------------- SI HAY MOTOS:
             return res.status(200).json(allPlayers);
         } else {
@@ -71,7 +70,7 @@ const getAll = async (req, res, next) =>  {
 };
 
 //! --------------- GET by NAME ----------------
-const getByName = async (req, res, next) => { //? ----------------- es igual que el getById
+const getByName = async (req, res, next) => {
     try {
         const {name} = req.params;
         const playerByName = await Player.find({name});
@@ -187,22 +186,22 @@ const deletePlayer = async (req, res, next) => {
             try { //? --------------------------------------- ELIMINAMOS AL JUGADOR DEL EQUIPO
                 const test = await Team.updateMany( //? ----- ahora estamos cambiando en el model de Team para poder quitar el jugador que ya no existe
                     {players: id}, //? ---------------------- queremos cambiar lo que sea que haya que cambiar en esta propiedad del model, si se omite se dice que se cambia cualquier conincidencia en todo el modelo. es la condición
-                    {$pull: {players: id}} //? -------------- estamos diciendo que quite de la propiedad players, el id indicado, es decir el de la moto que se ha eliminado. es la ejecución
+                    {$pull: {players: id}} //? -------------- estamos diciendo que quite de la propiedad players, el id indicado, es decir el del jugador que se ha eliminado. es la ejecución
                 )
             } catch (error) {
                 return res.status(404).json({message: "Error al eliminar el jugador del equipo ❌", error: error.message})
             }
 
-            try { //? -------------------------------------- ELIMINAMOS AL JUGADOR DEL USER
-                const test = await User.updateMany( //? ---- ahora estamos cambiando en el model de User para poder quitar el jugador que ya no existe
-                    {favPlayers: id}, //? ------------------ condición/ubicación del cambio (eliminación)
-                    {$pull: {favPlayers: id}} //? ---------- ejecución
-                )
-            } catch (error) {
-                return res.status(404).json({message: "Error al eliminar el jugador del usuario ❌", error: error.message})
-            }
+            // try { //? -------------------------------------- ELIMINAMOS AL JUGADOR DEL USER
+            //     const test = await User.updateMany( //? ---- ahora estamos cambiando en el model de User para poder quitar el jugador que ya no existe
+            //         {favPlayers: id}, //? ------------------ condición/ubicación del cambio (eliminación)
+            //         {$pull: {favPlayers: id}} //? ---------- ejecución
+            //     )
+            // } catch (error) {
+            //     return res.status(404).json({message: "Error al eliminar el jugador del usuario ❌", error: error.message})
+            // }
 
-            const findByIdPlayer = await Player.findById(id); //? hemos encontrado esta moto? no debería existir porque  la hemos eliminado en 2 lineas antes
+            const findByIdPlayer = await Player.findById(id); //? hemos encontrado este jugador? no debería existir porque lo hemos eliminado al ppio
             return res.status(findByIdPlayer ? 404 : 200).json({ //? si se encuentra hay un error, porque no se ha eliminado
                 deleteTest: findByIdPlayer ? false : true, //? si existe, el test ha dado fallo y si no existe ha aprobado el test
             });

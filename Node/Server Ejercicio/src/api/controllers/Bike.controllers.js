@@ -8,8 +8,6 @@ const TypeBike = require("../models/TypeBike.model");
 //! ---------------------------------------------------------------------
 //? ------------------------------- POST CREATE -------------------------
 //! ---------------------------------------------------------------------
-
-
 const create = async (req, res, next) => {
     let catchImg = req.file?.path //? ------- capturamos la url de la img que se sube a cloudinary. El OPTIONAL CHAINING es porque la img no es obligatoria y puede que no haya imagen en la request
     try {
@@ -22,23 +20,25 @@ const create = async (req, res, next) => {
         }
 
         const saveBike = await newBike.save(); //? ---------------------- GUARDAMOS LA MOTO EN LA BASE DE DATOS (DB) O BACKEND
-            if (saveBike) { 
+        //! ----------------- INTENTO RECIPROCIDAD EN EL CREATE ----------------
+        const id = saveBike._id
+        const typebikeofBike = req.body?.type
+        console.log(typebikeofBike)
+        if (typebikeofBike) {
+            console.log("se ha creado moto con tipo asignado")
+            console.log(id)
+            const updateTypes = await TypeBike.findByIdAndUpdate(typebikeofBike,
+                {bikes: id}
+            )
+            console.log(updateTypes)
+        } //! ------------------------------------------------------------------
+        
+        if (saveBike) { 
                 res.status(200).json(saveBike);
             } else {
                 return res.status(404).json("No se ha podido guardar el elemento en la DB ❌")
             }
-        //! ----------------- INTENTO RECIPROCIDAD EN EL CREATE ----------------
-        const {id} = req.params
-        const typebikeofBike = req.body?.type
-        if (typebikeofBike) {
-            console.log("se ha creado moto con tipo asignado")
-            console.log(id)
-            const updateTypes = await TypeBike.updateMany(
-                {bikes: id},
-                {$push: {bikes: id}}
-            )
-        } //! ------------------------------------------------------------------
-
+        
     } catch (error) { //? ------------------------ si ha habido un error subiendo la imagen, hay que borrarla, ya que ya se ha subido a cloudinary. Se ha hecho en la primera línea de esta función
         req.file?.path ? deleteImgCloudinary(catchImg) : null;
         return res.status(404).json({
@@ -51,7 +51,6 @@ const create = async (req, res, next) => {
 //! ---------------------------------------------------------------------
 //? ---------------------------- GET BY ID ------------------------------
 //! ---------------------------------------------------------------------
-
 const getById = async (req, res, next) => {
     try {
         const {id} = req.params; //!!!!!!!!!!!!!! ---- DE DONDE SALE EL ID
@@ -69,7 +68,6 @@ const getById = async (req, res, next) => {
 //! ---------------------------------------------------------------------
 //? --------------------------- GET ALL ---------------------------------
 //! ---------------------------------------------------------------------
-
 const getAll = async (req, res, next) =>  {
     console.log("entro")
     try {
@@ -91,7 +89,6 @@ const getAll = async (req, res, next) =>  {
 //! ---------------------------------------------------------------------
 //? --------------------------- GET BY MODEL ----------------------------
 //! ---------------------------------------------------------------------
-
 const getByModel = async (req, res, next) => { //? ----------------- es igual que el getById
     try {
         const {model} = req.params;
@@ -114,7 +111,6 @@ const getByModel = async (req, res, next) => { //? ----------------- es igual qu
 //! ---------------------------------------------------------------------
 //? ------------------------------ UPDATE -------------------------------
 //! ---------------------------------------------------------------------
-
 const update = async (req, res, next) => {
     await Bike.syncIndexes(); //? .------------------- busca las actualizaciones, por si se ha modficado el modelo moto
     let catchImg = req.file?.path; //? ------- capturamos la url de la img que se sube a cloudinary. El OPTIONAL CHAINING es porque la img no es obligatoria y puede que no haya imagen en la request
@@ -196,7 +192,6 @@ const update = async (req, res, next) => {
 //! ---------------------------------------------------------------------
 //? ---------------------------- DELETE ---------------------------------
 //! ---------------------------------------------------------------------
-
 const deleteBike = async (req, res, next) => {
     try {
         const {id} = req.params;

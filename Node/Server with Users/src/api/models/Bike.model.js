@@ -15,7 +15,8 @@ const BikesSchema = new Schema( //? DEFINICIÓN DE DATOS
             enum: [1, 2, 3, 4],
             required: false
         },
-        type: [{type: mongoose.Schema.Types.ObjectId, ref: "TypeBike"}]
+        type: [{type: mongoose.Schema.Types.ObjectId, ref: "TypeBike"}],
+        likes: [{type: mongoose.Schema.Types.ObjectId, ref: "User"}] //? estamos añadiendo una relación con el modelo Users con la que se podrá dar like a las motos
     },
     {
         timestamps: true, // momento en el que se ha creado este elemento (el de arriba)

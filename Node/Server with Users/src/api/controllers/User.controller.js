@@ -551,18 +551,20 @@ const deleteUser = async (req, res, next) => {
 //! ------------------- ADD FAV MOVIE ----------------------
 const addFavTypeBike = async (req, res, next) => {
     try {
-        const {idTypeBike} = req.params;
+        const {idTypeBike} = req.params; //? recibimos el id por el req.user porque es autenticado
         const {_id, typebikeFav} = req.user;
 
-        if (req.user.typebikeFav.includes(idTypeBike)){ //? si en el los favoritos del user ya esta el tipo de moto: (pull) o (push)
+        if (req.user.typebikeFav.includes(idTypeBike)){ //? si en los favoritos del user ya esta el tipo de moto: (pull) o (push).
             try {
-                await User.findByIdAndUpdate(_id, {
-                    $pull: {typebikeFav: idTypeBike}
+                await User.findByIdAndUpdate(_id, { //? actualizamos el usuario. 1r param => condición ()
+                    $pull: {typebikeFav: idTypeBike} //? 2o param => ejecución
                 });
                 try {
                     await Movie.findByIdAndUpdate(idTypeBike, {
                         $pull: {likes: _id}
                     });
+                    
+                    return res.status(200).json({})
                 } catch (error) {
 
                 }

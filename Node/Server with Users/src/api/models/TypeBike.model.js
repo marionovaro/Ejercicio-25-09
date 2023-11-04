@@ -4,7 +4,8 @@ const TypeBikeSchema = new mongoose.Schema(
     {
         name: {type: String, required: true, unique: true},
         use: {type: String, required: false, unique: false},
-        bikes: [{type: mongoose.Schema.Types.ObjectId, ref: "Bike"}]
+        bikes: [{type: mongoose.Schema.Types.ObjectId, ref: "Bike"}],
+        likes: [{type: mongoose.Schema.Types.ObjectId, ref: "User"}] //? estamos añadiendo una relación con el modelo Users con la que se podrá dar like a los tipos de moto
     },
     {
         timestamps: true,
