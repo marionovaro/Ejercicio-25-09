@@ -1,3 +1,16 @@
+//! --------------- ENUM GENDER ------------------
+const enumGenderOk = (gender) => {
+    const enumGender = ["hombre", "mujer", "otros"];
+    if (enumGender.includes(gender)) {
+        console.log("entro en el true");
+        return {check : true, gender};
+    } else {
+        return {
+            chceck: false,
+        }
+    }
+}
+
 //! --------------- ENUM POSITION ------------------
 const enumPositionOk = (position) => {
     const enumPosition = ["goalkeeper", "centre-back", "right-back", "left-back", "midfielder", "forward"];
@@ -39,6 +52,7 @@ const enumLeagueOk = (league) => {
 
 
 module.exports = {
+    enumGenderOk,
     enumPositionOk,
     enumPreferredFootOk,
     enumLeagueOk

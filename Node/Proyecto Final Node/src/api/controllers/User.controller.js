@@ -6,7 +6,7 @@ const { generateToken } = require("../../utils/token");
 const sendEmail = require("../../utils/sendEmail")
 const randomCode = require("../../utils/randomCode");
 const randomPassword = require("../../utils/randomPassword");
-const enumOk = require("../../utils/enumOk");
+const { enumGenderOk } = require("../../utils/enumOk");
 
 //! -------- ESTADOS ----------
 const { getSendEmail, setSendEmail } = require("../../state/state.data");
@@ -23,7 +23,6 @@ const setError = require("../../helpers/handle-error");
 const Player = require("../models/Player.model");
 const Team = require("../models/Team.model");
 const User = require("../models/User.model");
-
 
 //todo -------------------------------------------------------------------------------------------------------
 
@@ -335,7 +334,7 @@ const checkNewUser = async (req, res, next) => { //? verifica si el correo del r
                     const updateUser = await User.findOne({email}); //? buscamos el usuario actualizado y devolvemos un test:
                     return res.status(200).json({testCheckUser: updateUser.check == true ? true : false}) //? si el check esta en true es que ha ido bien, si esta en false es que algo ha fallado
                 } catch (error) {
-                    return res.status(404).json({message: "error catch update", error: error.message}) //? mira si se ha actualizado el usuario corectamente 
+                    return res.status(404).json({message: "error al comprobar el check user ❌", error: error.message}) //? mira si se ha actualizado el usuario corectamente 
                 }
             } else {
                 await User.findByIdAndDelete(userExist._id); //? si no tienes el confirmation code correcto, es que no deberias estar en mi backend y por lo tanto, te busco por id y te borro
@@ -347,7 +346,7 @@ const checkNewUser = async (req, res, next) => { //? verifica si el correo del r
                 })
             }
         } else {
-            return res.status(404).json("User not found/is not registered")
+            return res.status(404).json("User not found/is not registered 🔎❌")
         }
     } catch (error) {
         return next(setError(500, error.message || "Error general en el checkeo de user con código"))
@@ -360,12 +359,12 @@ const changePassword = async (req, res, next) => {
         const {email} = req.body
         const userDB = await User.findOne({email})
         if (userDB) { //? si encontramos el usuario en el backend:
-            return res.redirect(307, `http://localhost:8080/api/v1/users/sendPassword/${userDB._id}`) //? llamamos a un redirect que genera contraseña nueva (lo hace: utils/randomPassword) y la envía
+            return res.redirect(307, `http://localhost:8081/api/v1/users/sendPassword/${userDB._id}`) //? llamamos a un redirect que genera contraseña nueva (lo hace: utils/randomPassword) y la envía
         } else {
-            return res.status(404).json("User not found/is not registered")
+            return res.status(404).json("User not found/is not registered 🔎❌")
         }
     } catch (error) {
-        return next(setError(500 || "Error general al cambiar la contraseña"))
+        return next(setError(500 || "Error general al cambiar la contraseña ❌"))
     }
     
 }
@@ -410,12 +409,12 @@ const sendPassword = async (req, res, next) => {
                         return res.status(404).json({updateUser: false, sendPassword: true}) //? se ha enviado pero no se ha cambiado, ha habido algún error ya que las contraseñas no coinciden
                     }
                 } catch (error) {
-                    return res.status(404).json({message: "Error en el catch del test del update", error: error.message}) //! este catch es necesario si el else ya detecta el fallo en el update????
+                    return res.status(404).json({message: "Error en el catch del test del update password ❌", error: error.message})
                 }
             }
         })
     } catch (error) {
-        return next(setError(500, error.message || "Error general al enviar la contraseña NO AUTH"))
+        return next(setError(500, error.message || "Error general al enviar la contraseña NO AUTH ❌"))
     }
 }
 
@@ -424,16 +423,16 @@ const exampleAuth = async (req, res, next) => {
     const {user} = req;
     return res.status(200).json(user)
 }
-//? explicación a las 12.53
 
 //! -------------------- CAMBIO DE CONTRASEÑA (logado) ----------------------
 const modifyPassword = async (req, res, next) => {
+    console.log("entro")
     try {
         const {password, newPassword} = req.body; //? --------------- contraseña antigua y nueva sin encriptar
         const validado = validator.isStrongPassword(newPassword); //? método para ver si supera las pruebas de seguridad
         if (validado) {
             const {_id} = req.user; //? ------------------------------ el id está guardado en el req.user
-            if (bcrypt.compareSync(password, req.user.password)) { //? comparamos si la contraseña antigua no encriptada (password) es igual a antigua del backend encriptada (req-user.password)
+            if (bcrypt.compareSync(password, req.user.password)) { //? comparamos si la contraseña antigua no encriptada (password) es igual a antigua del backend encriptada (req.user.password)
                 const newPasswordHashed = bcrypt.hashSync(newPassword, 10); //? hasheamos la contraseña para poder almacenarla en el backend
                 try {
                     await User.findByIdAndUpdate(_id, {password: newPasswordHashed}); //? ACTUALIZAMOS. buscamos al usuario y le metemos la nueva contraseña ya encriptada. NO SE HACE CON SAVE (entraria el presave y se vuelve a hashear)
@@ -452,10 +451,10 @@ const modifyPassword = async (req, res, next) => {
                 return res.status(404).json("password does not match")
             }
         } else {
-            return res.status(404).json("invalid password")
+            return res.status(404).json("Invalid password ❌ Not strong enough")
         }
     } catch (error) {
-        return next(setError(500, error.message || "Error general al enviar la contraseña NO AUTH"))
+        return next(setError(500, error.message || "Error general al enviar la contraseña NO AUTH ❌"))
     }
 }
 
@@ -476,7 +475,7 @@ const update = async (req, res, next) => {
 		patchUser.email = req.user.email;
 
         if (req.body?.gender) { //? como el genero es enum, no se puede modificar a cualquier cosa, ponemos la función que pusimos en el update de los characters
-            const resultEnum = enumOk(req.body?.gender);
+            const resultEnum = enumGenderOk(req.body?.gender);
             patchUser.gender = resultEnum.check
                 ? req.body?.gender
                 : req.user.gender
@@ -490,20 +489,20 @@ const update = async (req, res, next) => {
             const updateUser = await User.findById(req.user._id); //? siempre lo primero: traemos el usuario actualizado para comparar con la info del body
             const updateKeys = Object.keys(req.body); //? ----------- las claves del request body son los elementos que quiero actualizar. las sacamos
             const testUpdate = [] //?-------------------------------- guardamos los testing y sus resultados
-            updateKeys.forEach((item) => { //?----------------------- me recorro las keys del body, es decir, las propiedades que quiero modificar
-                if (updateUser[item] === req.body.item) { //?-------- miramos que la info actualizada sea la misma que hay en el body (lo que nos han dicho de actualizar)
-                    if (updateUser != req.user[item]) { //?---------- miramos tambien que sea diferente a lo que ya había en el backend (para que no ponga actualizado cuando en vd no ha cambiado nada)
+            updateKeys.forEach((key) => { //?------------------------ me recorro las keys del body, es decir, las propiedades que quiero modificar
+                if (updateUser[key] === req.body[key]) { //?--------- miramos que la info actualizada sea la misma que hay en el body (lo que nos han dicho de actualizar)
+                    if (updateUser[key] != req.user[key]) { //!------ miramos tambien que sea diferente a lo que ya había en el backend (para que no ponga actualizado cuando en vd no ha cambiado nada) // ESTA MAL PORQUE REQ.USER YA ESTA ACTUALIZADO, NO ESTAMOS ACCEDIENDO A LOS VALORES ANTIGUOS // NO ESTA MAL, LO HE COMPROBADO, PERO PREGUNTA COMO FUNCIONA???
                         testUpdate.push({  //?----------------------- pusheamos al array de los testing
-                            [item]: true //?------------------------- esta propiedad la ponemos a true porque se ha actualizado, ya que son iguales lo que hay en el backend y lo que hay ahora en el user
+                            [key]: true //?-------------------------- esta propiedad la ponemos a true porque se ha actualizado, ya que son iguales lo que hay en el backend y lo que hay ahora en el user
                         })
                     } else { //? si la info que había antes y la de ahora son iguales, indicamos que no ha cambiado nada, que la info pedida y la antigua es la misma
                         testUpdate.push({
-                            [item]: "Same Old Info"
+                            [key]: "Same Old Info"
                         })
                     }
                 } else { //? si la info del body y la del usuario actualizado no son iguales, le ponemos valor en false para indicar que no se ha actualizado
                     testUpdate.push({
-                        [item]: false
+                        [key]: false
                     })
                 }
             })
@@ -519,71 +518,100 @@ const update = async (req, res, next) => {
             return res.status(200).json({updateUser, testUpdate})
         } catch (error) {
             req.file && deleteImgCloudinary(catchImg)
-            return res.status(404).json({message: "Error catch update (error al actualizar el usuario)", error: error.message})
+            return res.status(404).json({message: "Error al actualizar el usuario ❌", error: error.message})
         }
     } catch (error) {
         req.file && deleteImgCloudinary(catchImg)
-        return next(setError(500, error.message || "Error general en el catch del update"))
+        return next(setError(500, error.message || "Error general en el catch del update ❌"))
     }
 }
 
 //! ------------------- DELETE USER ----------------------------
 const deleteUser = async (req, res, next) => {
     try {
-        // const {_id, image} = req.user; //? el destructuring no lo hacemos por la explicación que pongo mas adelante
-        await User.findByIdAndDelete(req.user?.id) 
-        deleteImgCloudinary(req.user?.image);
+        // const {_id, image} = req.user; //?--------- el destructuring no lo hacemos por la explicación que pongo mas adelante
+        await User.findByIdAndDelete(req.user?.id) //? bucamos el user a través del id y lo eliminamos
+        deleteImgCloudinary(req.user?.image); //?----- eliminamos la imagen tmb
         try {
-            await TypeBike.updateMany(
+            await Team.updateMany(
                 {likes: req.user?._id},
                 {$pull: {likes: req.user?._id}}
             );
             try {
-                await Bike.updateMany(
+                await Player.updateMany(
                     {likes: req.user?._id},
                     {$pull: {likes: req.user?._id}}
                 )
                 const existUser = await User.findById(req.user?._id); //? le hemos puesto el req.user?._id en vez de solamente _id para que cuando intentemos borrar un elemento que no existe no rompa
-                return res.status(existUser ? 404 : 200).json({deleteTest: existUser ? false : true}) //? `ponemos con ternarios los errores o exitos
+                return res.status(existUser ? 404 : 200).json({deleteTest: existUser ? false : true}) //? ponemos con ternarios los errores o exitos
+
             } catch (error) {
-                return res.status(404).json({message: "Error catch delete en Bike", error: error.message})
+                return res.status(404).json({message: "Error al eliminar User, de Player ❌", error: error.message})
             }
         } catch (error) {
-            return res.status(404).json({message: "Error catch delete en TypeBike", error: error.message})
+            return res.status(404).json({message: "Error al eliminar User, de Team ❌", error: error.message})
         }
     } catch (error) {
-        return next(setError(500, error.message || "Error general en el catch del DELETE"))
+        return next(setError(500, error.message || "Error general en el catch del DELETE ❌"))
     }
 }
 
-//! ------------------- ADD FAV MOVIE ----------------------
-const addFavTypeBike = async (req, res, next) => {
+//! ------------------- ADD FAV TEAM ----------------------
+const addFavTeam = async (req, res, next) => {
     try {
-        const {idTypeBike} = req.params; //? recibimos el id por el req.user porque es autenticado
-        const {_id, typebikeFav} = req.user;
+        const {idTeam} = req.params; //? --- recibimos el id del equipo que queremos darle like por el url
+        const elementTeam = Team.findById(idTeam)
+        const {_id, favTeams, name} = req.user; //? recibimos el id del user por el req.user porque es autenticado
 
-        if (req.user.typebikeFav.includes(idTypeBike)){ //? si en los favoritos del user ya esta el tipo de moto: (pull) o (push).
+        if (favTeams.includes(idTeam)){ //! ------------- PULL -----------------
             try {
                 await User.findByIdAndUpdate(_id, { //? actualizamos el usuario. 1r param => condición ()
-                    $pull: {typebikeFav: idTypeBike} //? 2o param => ejecución
+                    $pull: {favTeams: idTeam} //? 2o param => ejecución (sacamos id de equipo del user)
                 });
                 try {
-                    await Movie.findByIdAndUpdate(idTypeBike, {
+                    await Team.findByIdAndUpdate(idTeam, { //? aquí se actualiza el modelo de equipo para sacar al user como like
                         $pull: {likes: _id}
                     });
                     
-                    return res.status(200).json({})
+                    // todo --------- RESPONSE ------------- // QUIERO HACER QUE SALGA EL NOMBRE DEL CLUB EN VEZ DEL ID EN LA LINEA 580
+                    
+                    return res.status(200).json({
+                        userUpdate: await User.findById(_id),
+                        teamUpdate: await Team.findById(idTeam),
+                        action: `Se ha quitado el equipo ${elementTeam.name} como favorito del usuario ${name}`
+                    })
                 } catch (error) {
-
+                    return res.status(404).json({error: 'Error al quitar el User, del Team ❌', message: error.message});
                 }
             } catch (error) {
-                return res.status(404).json({message: "", error: error.message})
+                return res.status(404).json({message: "Error al quitar el Team, del User ❌", error: error.message})
             }
-        } else {
-
+        } else { //! ---------- PUSH ----------------
+            try {
+                await User.findByIdAndUpdate(_id, { //? actualizamos el usuario. 1r param => condición ()
+                    $push: {favTeams: idTeam} //? 2o param => ejecución (metemos id de equipo en el user)
+                });
+                try {
+                    await Team.findByIdAndUpdate(idTeam, { //? aquí se actualiza el modelo de equipo para meter al user como like
+                        $push: {likes: _id}
+                    });
+                    
+                    // todo --------- RESPONSE ------------- // QUIERO HACER QUE SALGA EL NOMBRE DEL CLUB EN VEZ DEL ID EN LA LINEA 580
+                    
+                    return res.status(200).json({
+                        userUpdate: await User.findById(_id),
+                        teamUpdate: await Team.findById(idTeam),
+                        action: `Se ha añadido el equipo ${elementTeam.name} como favorito del usuario ${name}`
+                    })
+                } catch (error) {
+                    return res.status(404).json({error: 'Error al añadir el User, al Team ❌', message: error.message});
+                }
+            } catch (error) {
+                return res.status(404).json({message: "Error al añadir el Team, al User ❌", error: error.message})
+            }
         }
     } catch (error) {
-        return next(setError(500, error.message || "Error general al añadir a Favoritos ❤️❌"))
+        return next(setError(500, error.message || "Error general al hacer toggle de Equipos Favoritos ❤️❌"))
     }
 }
 
@@ -603,5 +631,5 @@ module.exports = {
     modifyPassword,
     update,
     deleteUser,
-    addFavTypeBike
+    addFavTeam
 };

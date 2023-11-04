@@ -17,6 +17,7 @@ const isAuth = async (req, res, next) => {
 
         //! --> comprobamos que esta autenticado
         req.user = await User.findById(decodedToken.id) //? estamos creando el req.user, que vendría a ser como una propiedad de req con el user obtenido. nos confirma que esta autenticado
+        next()
     } catch (error) {
         return next(error)
     }
