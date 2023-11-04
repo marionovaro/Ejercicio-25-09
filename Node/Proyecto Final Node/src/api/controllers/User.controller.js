@@ -732,8 +732,9 @@ const addFavPlayer = async (req, res, next) => {
 // }
 const getFavTeams = async (req, res, next) => {
     try {
-        const id = req.params //? id del user por el param, vamos a buscar 
-        const userById = await User.findById(id)
+        console.log("entro")
+        const id = req.params //? id del user por el param, vamos a buscar los favteams de este user
+        const userById = await User.findById(id) //? encontramos el user por el id
         const usersFavTeams = userById.favTeams
         console.log(usersFavTeams)
         const showTeams = await Team.find({_id: usersFavTeams})
