@@ -4,6 +4,9 @@ const {registerLargo,
         registerEstado,
         registerWithRedirect,
         sendCode,
+        getById,
+        getAll,
+        getByName,
         login,
         autologin,
         resendCode,
@@ -14,7 +17,9 @@ const {registerLargo,
         modifyPassword,
         update,
         deleteUser,
-        addFavTeam
+        addFavTeam,
+        addFavPlayer,
+        getFavTeams
 } = require("../controllers/User.controller");
 
 const UserRoutes = require("express").Router()
@@ -22,6 +27,9 @@ const UserRoutes = require("express").Router()
 UserRoutes.post("/register",upload.single("image"), registerLargo);
 UserRoutes.post("/registerUtil", upload.single("image"), registerEstado);
 UserRoutes.post("/registerRedirect", upload.single("image"), registerWithRedirect);
+UserRoutes.get("/:id", getById);
+UserRoutes.get("/", getAll);
+UserRoutes.get("/byName/:name", getByName);
 UserRoutes.post("/login", login);
 UserRoutes.post("/login/autologin", autologin);
 UserRoutes.post("/check", checkNewUser);
@@ -33,7 +41,9 @@ UserRoutes.get("/pruebas", [isAuth], exampleAuth);
 UserRoutes.patch("/changepassword", [isAuth], modifyPassword)
 UserRoutes.patch("/update/update", [isAuth], upload.single("image"), update)
 UserRoutes.delete("/", [isAuth], deleteUser)
-UserRoutes.patch("/toggleTypeBike/:idTypeBike", addFavTeam)
+UserRoutes.patch("/toggleTeam/:idTeam", [isAuth], addFavTeam)
+UserRoutes.patch("/togglePlayer/:idPlayer", [isAuth], addFavPlayer)
+UserRoutes.get("/favTeams/:id", [isAuth], getFavTeams)
 
 //!-----> Controladores de redirect
 UserRoutes.post("/register/sendMail/:id", sendCode);

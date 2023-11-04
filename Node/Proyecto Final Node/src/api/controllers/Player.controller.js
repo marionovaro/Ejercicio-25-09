@@ -73,7 +73,9 @@ const getAll = async (req, res, next) =>  {
 const getByName = async (req, res, next) => {
     try {
         const {name} = req.params;
+        console.log(name)
         const playerByName = await Player.find({name});
+        console.log(playerByName)
         if (playerByName.length > 0) {
             return res.status(200).json(playerByName);
         } else {

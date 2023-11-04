@@ -6,7 +6,8 @@ const {
     getAll,
     getByName,
     update,
-    deleteTeam
+    deleteTeam,
+    getFavTeams
 } = require("../controllers/Team.controller");
 
 const TeamRoutes = require("express").Router();
@@ -18,5 +19,7 @@ TeamRoutes.get("/", getAll);
 TeamRoutes.get("/byName/:name", getByName);
 TeamRoutes.patch("/:id", upload.single("image"), update);
 TeamRoutes.delete("/:id", deleteTeam);
+
+TeamRoutes.get("/favTeams/:userId", getFavTeams)
 
 module.exports = TeamRoutes

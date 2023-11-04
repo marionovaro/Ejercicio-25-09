@@ -1,7 +1,9 @@
+const setError = require("../../helpers/handle-error");
 const { deleteImgCloudinary } = require("../../middleware/files.middleware");
 const { enumPositionOk, enumPreferredFootOk, enumLeagueOk } = require("../../utils/enumOk");
 const Player = require("../models/Player.model");
 const Team = require("../models/Team.model");
+const User = require("../models/User.model");
 
 //! --------------- CREATE ----------------
 const create = async (req, res, next) => {
@@ -106,13 +108,13 @@ const getById = async (req, res, next) => {
 //! --------------- GET ALL ----------------
 const getAll = async (req, res, next) =>  {
     try {
-        const allTeams = await Team.find() //? ------------- el find() nos devuelve un array con todos los elementos de la colección del BackEnd, es decir, TODOS LOS JUGADORES
+        const allTeams = await Team.find() //? ------------- el find() nos devuelve un array con todos los elementos de la colección del BackEnd, es decir, TODOS LOS EQUIPOS
         return res 
             .status(allTeams.length > 0 ? 200 : 404) //? ---- si hay equipos en la db (el array tiene al menos 1 elemento), 200 o 404
             .json(allTeams.length > 0 ? allTeams : {message: "No se han encontrado equipos en la DB ❌", error: error.message}); 
 
     } catch (error) {
-        return res.status(404).json({message: "error al buscar jugaddores en la colección ❌ - catch general", error: error.message});
+        return res.status(404).json({message: "error al buscar equipos en la colección ❌ - catch general", error: error.message});
     }
 };
 
@@ -252,6 +254,28 @@ const deleteTeam = async (req, res, next) => {
     }
 };
 
+//! ------------------- GET FAV TEAMS ----------------------
+const getFavTeams = async (req, res, next) => {
+    try {
+        const {userId} = req.params
+        // const {favTeams} = req.user
+        // console.log({favTeams})
+        const userById = await User.findById(userId)
+        const usersFavTeams = userById.favTeams
+        console.log(usersFavTeams)
+        const showTeams = await Team.find({_id: usersFavTeams})
+        console.log(showTeams)
+        return res
+            .status(showTeams.length > 0 ? 200 : 404)
+            .json(showTeams.length > 0 ? showTeams : "No se han encontrado equipos favoritos en el usuario ❌")
+    } catch (error) {
+        return next(setError(500, error.message || "Error general al buscar Equipos Favoritos ❤️❌"))
+    }
+}
+
+
+
+
 module.exports = {
     create,
     togglePlayer,
@@ -259,5 +283,6 @@ module.exports = {
     getAll,
     getByName,
     update,
-    deleteTeam
+    deleteTeam,
+    getFavTeams
 }

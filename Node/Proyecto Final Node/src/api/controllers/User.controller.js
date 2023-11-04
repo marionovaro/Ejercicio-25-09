@@ -236,7 +236,48 @@ const sendCode = async (req, res) => {
     }
 }
 
-//! ----------------------- LOGIN ---------------------------------
+//! ----------------------- GET by ID ------------------------------
+const getById = async (req, res, next) => {
+    try {
+        const {id} = req.params;
+        const userById = await User.findById(id); //? cogemos el elemento (usuario) identificandolo a través del id, que es único
+        return res
+            .status(userById ? 200 : 404)
+            .json(userById ? userById : "no se ha encontrado un usuario con ese id ❌");
+
+    } catch (error) {
+        return res.status(404).json({message: "error en el GET by ID ❌ - catch general", error: error.message})
+    }
+};
+
+//! ----------------------- GET ALL ------------------------------
+const getAll = async (req, res, next) =>  {
+    try {
+        const allUsers = await User.find() //? ------------- el find() nos devuelve un array con todos los elementos de la colección del BackEnd, es decir, TODOS LOS USERS
+        return res 
+            .status(allUsers.length > 0 ? 200 : 404) //? ---- si hay equipos en la db (el array tiene al menos 1 elemento), 200 o 404
+            .json(allUsers.length > 0 ? allUsers : {message: "No se han encontrado usuarios en la DB ❌", error: error.message}); 
+
+    } catch (error) {
+        return res.status(404).json({message: "error al buscar usuarios en la colección ❌ - catch general", error: error.message});
+    }
+};
+
+//! ----------------------- GET by NAME ------------------------------
+const getByName = async (req, res, next) => {
+    try {
+        const {name} = req.params;
+        const userByName = await User.find({name});
+        return res
+            .status(userByName.length > 0 ? 200 : 404) //? igual que en get all, miramos si el array con ese nombre es mayor que 0 (solo debería de haber 1) y mostramos 200 o 404
+            .json(userByName.length > 0 ? userByName : "no se ha encontrado ningún usuario con ese nombre ❌");
+
+    } catch (error) {
+        return res.status(404).json({message: "error al buscar a través del name ❌ - catch general", error: error.message});
+    }
+};
+
+//! ----------------------- LOGIN ------------------------------
 const login = async (req, res, next) => {
     try {
         const {email, password} = req.body; //? - cogemos el email y la contraseña que nos mete el usuario en el login
@@ -560,7 +601,7 @@ const deleteUser = async (req, res, next) => {
 const addFavTeam = async (req, res, next) => {
     try {
         const {idTeam} = req.params; //? --- recibimos el id del equipo que queremos darle like por el url
-        const elementTeam = Team.findById(idTeam)
+        const elementTeam = await Team.findById(idTeam)
         const {_id, favTeams, name} = req.user; //? recibimos el id del user por el req.user porque es autenticado
 
         if (favTeams.includes(idTeam)){ //! ------------- PULL -----------------
@@ -573,7 +614,7 @@ const addFavTeam = async (req, res, next) => {
                         $pull: {likes: _id}
                     });
                     
-                    // todo --------- RESPONSE ------------- // QUIERO HACER QUE SALGA EL NOMBRE DEL CLUB EN VEZ DEL ID EN LA LINEA 580
+                    // todo --------- RESPONSE ------------- //
                     
                     return res.status(200).json({
                         userUpdate: await User.findById(_id),
@@ -615,12 +656,105 @@ const addFavTeam = async (req, res, next) => {
     }
 }
 
+//! ------------------- ADD FAV PLAYER ----------------------
+const addFavPlayer = async (req, res, next) => {
+    try {
+        const {idPlayer} = req.params; //? --- recibimos el id del equipo que queremos darle like por el url
+        const elementPlayer = await Player.findById(idPlayer)
+        const {_id, favPlayers, name} = req.user; //? recibimos el id del user por el req.user porque es autenticado y sabemos quien es por el token
+
+        if (favPlayers.includes(idPlayer)){ //! ------------- PULL -----------------
+            try {
+                await User.findByIdAndUpdate(_id, { //? actualizamos el usuario. 1r param => condición ()
+                    $pull: {favPlayers: idPlayer} //? 2o param => ejecución (sacamos id del jugador del user)
+                });
+                try {
+                    await Player.findByIdAndUpdate(idPlayer, { //? aquí se actualiza el modelo de jugador para sacar al user como like
+                        $pull: {likes: _id}
+                    });
+                    
+                    // todo --------- RESPONSE ------------- //
+                    
+                    return res.status(200).json({
+                        userUpdate: await User.findById(_id),
+                        playerUpdate: await Player.findById(idPlayer),
+                        action: `Se ha quitado el jugador ${elementPlayer.name} como favorito del usuario ${name}`
+                    })
+                } catch (error) {
+                    return res.status(404).json({error: 'Error al quitar el User, del Jugador ❌', message: error.message});
+                }
+            } catch (error) {
+                return res.status(404).json({message: "Error al quitar el Jugador, del User ❌", error: error.message})
+            }
+        } else { //! ---------- PUSH ----------------
+            try {
+                await User.findByIdAndUpdate(_id, { //? actualizamos el usuario. 1r param => condición ()
+                    $push: {favPlayers: idPlayer} //? 2o param => ejecución (metemos id de jugador en el user)
+                });
+                try {
+                    await Player.findByIdAndUpdate(idPlayer, { //? aquí se actualiza el modelo de jugador para meter al user como like
+                        $push: {likes: _id}
+                    });
+                    
+                    // todo --------- RESPONSE ------------- //
+                    
+                    return res.status(200).json({
+                        userUpdate: await User.findById(_id),
+                        playerUpdate: await Player.findById(idPlayer),
+                        action: `Se ha añadido el jugador ${elementPlayer.name} como favorito del usuario ${name}`
+                    })
+                } catch (error) {
+                    return res.status(404).json({error: 'Error al añadir el User, al Jugador ❌', message: error.message});
+                }
+            } catch (error) {
+                return res.status(404).json({message: "Error al añadir el Jugador, al User ❌", error: error.message})
+            }
+        }
+    } catch (error) {
+        return next(setError(500, error.message || "Error general al hacer toggle de Jugadores Favoritos ❤️❌"))
+    }
+}
+
+//! ------------------- GET FAV TEAMS ----------------------
+// const getFavTeams = async (req, res, next) => {
+//     try {
+//         const id = req.params
+//         const {favTeams} = req.user
+//         console.log({favTeams})
+//         const allFavTeams = await User.find({favTeams})
+//         console.log(allFavTeams)
+//         return res
+//             .status(allFavTeams.length > 0 ? 200 : 404)
+//             .json(allFavTeams.length > 0 ? allFavTeams : "No se han encontrado equipos favoritos en el usuario ❌")
+//     } catch (error) {
+//         return next(setError(500, error.message || "Error general al buscar Equipos Favoritos ❤️❌"))
+//     }
+// }
+const getFavTeams = async (req, res, next) => {
+    try {
+        const id = req.params //? id del user por el param, vamos a buscar 
+        const userById = await User.findById(id)
+        const usersFavTeams = userById.favTeams
+        console.log(usersFavTeams)
+        const showTeams = await Team.find({_id: usersFavTeams})
+        console.log(showTeams)
+        return res
+            .status(showTeams.length > 0 ? 200 : 404)
+            .json(showTeams.length > 0 ? showTeams : "No se han encontrado equipos favoritos en el usuario ❌")
+    } catch (error) {
+        return next(setError(500, error.message || "Error general al buscar Equipos Favoritos ❤️❌"))
+    }
+}
+
 
 module.exports = {
     registerLargo,
     registerEstado,
     registerWithRedirect,
     sendCode,
+    getById,
+    getAll,
+    getByName,
     login,
     autologin,
     resendCode,
@@ -631,5 +765,7 @@ module.exports = {
     modifyPassword,
     update,
     deleteUser,
-    addFavTeam
+    addFavTeam,
+    addFavPlayer,
+    getFavTeams
 };
