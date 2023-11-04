@@ -20,9 +20,10 @@ const validator = require("validator");
 const setError = require("../../helpers/handle-error");
 
 //! --------- MODELOS --------
+const Player = require("../models/Player.model");
+const Team = require("../models/Team.model");
 const User = require("../models/User.model");
-const TypeBike = require("../models/TypeBike.model");
-const Bike = require("../models/Bike.model");
+
 
 //todo -------------------------------------------------------------------------------------------------------
 
@@ -36,8 +37,8 @@ const registerLargo = async (req, res, next) => {
         console.log(confirmationCode + " --> CONFRIMATION CODE")
 
         const userExist = await User.findOne( //? estamos buscando si ya hay un usuario con este email o con este nombre para que si ya existe yo no pueda registrarlo. el findOne te encuentra un solo elemento, el find te da un array con todas las coincidencias con la condición que tu le des
-            {email: req.body.email}, //? las condiciones que tiene que cumplir el supuesto usuario si ya existe
-            {name: req.body.name}
+            {email: req.body.email}, //? las condiciones que tiene que cumplir el supuesto usuario si ya existe. que el email sea el que hemos puesto en el body
+            {name: req.body.name} //? tambien que el name sea el mismo, tiene que cumplir las dos
         );
         if (!userExist) { //? si el usuario no existe: 
             const newUser = new User ({...req.body, confirmationCode}); //? ---- creamos una copia con la info que nos mandan y con el confirmation code que nos da el model de user
@@ -56,13 +57,13 @@ const registerLargo = async (req, res, next) => {
                         service: "gmail",
                         auth: {
                             user: emailEnv,
-                            pass: password
+                            pass: password //? para poder usar este metodo de nodemailer e identificarme como el que lleva el servidor, no tiene que ver con nada del cliente, es verificacion de la aplicación y yo como programador
                         }
                     });
 
                     const mailOptions = { //? igual que el transporter, no lo escribo yo
-                        from: emailEnv,
-                        to: email,
+                        from: emailEnv, //? lo envío yo con el email que he puesto en el env
+                        to: email, //? esto es el destinatario, que sí que se saca del body del register, es decir, se lo enviamos al correo que nos ha dado el ususario al registrarse
                         subject: "Confirmation Code",
                         text: `tu código es ${confirmationCode}, gracias por confiar en nosotros ${name}` //? el confirmation code viene del modelo de user y el name del destructuring de la linea 9
                     }
@@ -79,7 +80,7 @@ const registerLargo = async (req, res, next) => {
                 }
             } catch (error) {
                 req.file && deleteImgCloudinary(catchImg);
-                return res.status(404).json({message: "error en el catch del save", error: error.message})
+                return res.status(404).json({message: "no se ha podido guardar la info del register en el nuevo usuario ❌", error: error.message})
             }
 
         } else { //? si el usuario ya existe: 
@@ -90,7 +91,7 @@ const registerLargo = async (req, res, next) => {
     } catch (error) {
         req.file && deleteImgCloudinary(catchImg) //? como ha habido un error (intento de register ya estando register) si se ha subido una imagen hay que borrarla para que no quede basura en el backend sin usar
         return res.status(404).json({
-             message: "error en el catch",
+             message: "error al crear nuevo usuario ❌ - catch general",
              error: error.message
             }) && next(error)
     }
@@ -116,24 +117,24 @@ const registerEstado = async (req, res) => {
                 : newUser.image = "https://pic.onlinewebfonts.com/svg/img_181369.png"
 
             try {
-                const savedUser = await newUser.save() //? --------------------- guardamos el user con la info ya metida (linea 91)
+                const savedUser = await newUser.save() //? --------------------- guardamos el user con la info ya metida (6 lineas antes)
                 if (savedUser) {
                     sendEmail(email, name, confirmationCode) //? enviamos el correo con la función que se encuentra en utils (sendEmail)
 
-                    setTimeout( () => { //? ponemos un timeout para gestionar la asincronía, ya que si no, nos detecta que no lo ha recibido pero si lo ha hecho, aunque mas tarde porque lo hace una librería externa
+                    setTimeout( () => { //? ponemos un timeout para gestionar la asincronía, ya que si no, nos detecta que no lo ha recibido pero si lo ha hecho, aunque mas tarde. eso es porque lo hace una librería externa (nodemailer)
                         if (getSendEmail()) { //? ------------------ si se ha enviado el correo
-                            setSendEmail(false) //? cada vez que se utiliza la función se tiene que resetear a false
+                            setSendEmail(false) //? ---------------- cada vez que se utiliza la función se tiene que resetear a false
                             res.status(200).json({user: savedUser, confirmationCode}) //? --- exito
                         } else { //? ------------------------------- si no se ha enviado
                             setSendEmail(false)
-                            return res.status(404).json({user: userSave, confirmationCode: "error, resend Code"})
+                            return res.status(404).json({user: userSave, confirmationCode: "error al enviar el correo de confirmación ❌📩, resend Code"})
                         }
                     }, 1400) //? ----------- el timeout es de 1,4 segundos
                 }
 
             } catch (error) {
                 req.file && deleteImgCloudinary(catchImg);
-                return res.status(404).json({message: "error en el catch del save", error: error.message})
+                return res.status(404).json({message: "error al guardar el usuario ❌", error: error.message})
             }
 
         } else {
@@ -144,14 +145,13 @@ const registerEstado = async (req, res) => {
     } catch (error) {
         req.file && deleteImgCloudinary(catchImg) //? como ha habido un error (intento de register ya estando register) si se ha subido una imagen hay que borrarla para que no quede basura en el backend sin usar
         return res.status(404).json({
-             message: "error en el catch",
+             message: "error al registrar el nuevo usuario ❌ - catch general",
              error: error.message
             }) && next(error)
     }
 }
 
 //! ------------------------- REGISTER DEL REDIRECT -------------------------------------------
-//? explicacion a las 12.18
 const registerWithRedirect = async (req, res, next) => {
     let catchImg = req.file?.path;
     try {
@@ -170,14 +170,14 @@ const registerWithRedirect = async (req, res, next) => {
                 : newUser.image = "https://pic.onlinewebfonts.com/svg/img_181369.png"
 
             try {
-                const savedUser = await newUser.save() //? --------------------- guardamos el user con la info ya metida (linea 91)
+                const savedUser = await newUser.save() //? --------------------- guardamos el user con la info ya metida (6 lineas antes)
                 if (savedUser) {
-                    return res.redirect(307, `http://localhost:8080/api/v1/users/register/sendMail/${savedUser._id}`) //? lo que estamos diciendo es que rediriga a esta página que te manda un mail, es una pagina que tiene de endpoint el id del usuario en el que hemos metido la info del register
+                    return res.redirect(307, `http://localhost:8081/api/v1/users/register/sendMail/${savedUser._id}`) //? lo que estamos diciendo es que rediriga a esta página que te manda un mail, es una pagina que tiene de endpoint el id del usuario en el que hemos metido la info del register
                 }
 
             } catch (error) {
                 req.file && deleteImgCloudinary(catchImg);
-                return res.status(404).json({message: "error en el catch del save", error: error.message})
+                return res.status(404).json({message: "error al guardar el usuario ❌", error: error.message})
             }
 
         } else {
@@ -188,7 +188,7 @@ const registerWithRedirect = async (req, res, next) => {
     } catch (error) {
         req.file && deleteImgCloudinary(catchImg) //? como ha habido un error (intento de register ya estando register) si se ha subido una imagen hay que borrarla para que no quede basura en el backend sin usar
         return res.status(404).json({
-             message: "error en el catch h",
+             message: "error al registrar el nuevo usuario ❌ - catch general",
              error: error.message
             }) && next(error)
     }
@@ -196,6 +196,7 @@ const registerWithRedirect = async (req, res, next) => {
 
 //! ------------------------- SEND CODE -------------------------------------------
 const sendCode = async (req, res) => {
+    console.log("yepaa voy!")
     try {
         const {id} = req.params; //? buscamos al user por id en el url porque cuando hacemos el redirect, en el url ya sale el id del usuario
         const userDB = await User.findById(id); //? aqui encontramos al user a través del id de la linea anterior y lo guardamos en variable para poder utilizarlo
@@ -214,7 +215,7 @@ const sendCode = async (req, res) => {
 
         const mailOptions = { //? -------------------------- seteamos las opciones del email que se envía
             from: email,
-            to: userDB.email,
+            to: userDB.email, //! aquí se envía al correo del usuario que se ha registrdo en el register con redirect, podemos acceder porque hemos guardado ese user en la 3a linea de la funcion
             subject: 'Confirmation code',
             text: `tu codigo es ${userDB.confirmationCode}, gracias por confiar en nosotros ${userDB.name}`,
         };
@@ -222,7 +223,7 @@ const sendCode = async (req, res) => {
         transporter.sendMail(mailOptions, function (error, info) { //? ejecutamos el transporter con sendMail y hacemos el envío
             if (error) {
             console.log(error);
-            return res.status(404).json({user: userDB, confirmationCode: "error, resent code"}) //? no se ha podido enviar el codigo y lo mostramos
+            return res.status(404).json({user: userDB, confirmationCode: "error al enviar el codigo ❌, reenviar código"}) //? no se ha podido enviar el codigo y lo mostramos
             } else {
             console.log('Email send: ' + info.response);
             return res.status(200).json({user: userDB, confirmationCode: userDB.confirmationCode}) //? si se ha podido enviar y mostramos el exito y el código por aquí
@@ -230,7 +231,7 @@ const sendCode = async (req, res) => {
         })
     } catch (error) {
         return res.status(404).json({
-            message: "error en el catch",
+            message: "error en el sendCode general",
             error: error.message
         }) && next(error)
     }
@@ -243,23 +244,26 @@ const login = async (req, res, next) => {
         const userDB = await User.findOne({email}) //? buscamos si hay algun usuario registrado con ese email
         if (userDB) {
             if (bcrypt.compareSync(password, userDB.password)) { //? comparamos la contraseña de texto plano (mete el user) con la encriptada que hay en el backend (de cuando el user se registró)
-                const token = generateToken(userDB._id, email); //! creamos un token que nos diga que la comprobación ha sido exitosa y que permita al user acceder   ?????????????
+                const token = generateToken(userDB._id, email); //? creamos un token que nos diga que la comprobación ha sido exitosa y que permita al user acceder
                 return res.status(200).json({user: userDB, token}) //? le damos el token al user para que sea suyo
             } else {
-                return res.status(404).json("password is incorrect (do not match)")
+                return res.status(404).json("password is incorrect (does not match) ❌")
             }
         } else {
-            return res.status(404).json("User not found/is not registered")
+            return res.status(404).json("User not found/is not registered 🔎❌")
         }
     } catch (error) {
-        return next(error)
+        return res.status(404).json({
+            message: "error al logearse ❌",
+            error: error.message
+        }) && next(error)
     }
 } 
 
 //! ----------------------- AUTOLOGIN ---------------------------------
   const autologin = async (req, res, next) => {
     try {
-        const {email, password} = req.body; //? - cogemos el email y la contraseña que nos mete el usuario en el login
+        const {email, password} = req.body; //? -  la contraseña en este caso, es la encriptada, ya que la sacamos nosotros del backend, no nos lo da el user
         const userDB = await User.findOne({email}) //? buscamos si hay algun usuario registrado con ese email
         if (userDB) {
             if (password === userDB.password) { //? cogemos la contraseña que nos ha dado el backend dp de ponerla el usuario (como nos la da el backend, ya esta encriptada)
@@ -267,15 +271,19 @@ const login = async (req, res, next) => {
                 const token = generateToken(userDB._id, email);
                 return res.status(200).json({user: userDB, token}) //? le damos el token al user (userDB) para que sea suyo
             } else {
-                return res.status(404).json("password is incorrect (does not match)")
+                return res.status(404).json("password is incorrect (does not match) ❌")
             }
         } else {
-            return res.status(404).json("User not found/is not registered")
+            return res.status(404).json("User not found/is not registered 🔎❌")
         }
     } catch (error) {
-        return next(error)
+        return res.status(404).json({
+            message: "error al logearse automáticamente ❌",
+            error: error.message
+        }) && next(error)
     }
-} 
+}
+
 //! ------------------------- RESEND CODE ------------------------------
 const resendCode = async (req, res, next) => {
     try {
@@ -294,7 +302,7 @@ const resendCode = async (req, res, next) => {
             const mailOptions = { //? ------------------------------ seteamos las opciones del email que se envía
                 from: email,
                 to: req.body.email,
-                subject: 'Confirmation code',
+                subject: ' Resent Confirmation code',
                 text: `tu codigo es ${userExist.confirmationCode}, gracias por confiar en nosotros ${userExist.name}`,
             };
 

@@ -34,7 +34,7 @@ const togglePlayer = async (req, res, next) => {
         const {players} = req.body; //? ------------------------- enviaremos esto por el req.body "12412242253,12535222232,12523266346", que son los id de los jugadores del equipo
         const teamById = await Team.findById(id); //? ----------- guardamos en variable el equipo buscado por id
         if (teamById) { //? ------------------------------------- si equpio existe:
-            const arrayIdPlayers = bikes.split(",") //? --------- los id de los jugadores que metemos en el body (4a linea funcion) las metemos en un array y las separamos por comas
+            const arrayIdPlayers = players.split(",") //? --------- los id de los jugadores que metemos en el body (4a linea funcion) las metemos en un array y las separamos por comas
             Promise.all(
                 arrayIdPlayers.map(async (player) => { //? ------ recorremos el array que hemos creado lleno de players
                     if (teamById.players.includes(player)) { //?- si el jugador ya está dentro del tipo de moto:     
