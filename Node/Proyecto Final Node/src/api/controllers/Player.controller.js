@@ -1,3 +1,4 @@
+const setError = require("../../helpers/handle-error");
 const { deleteImgCloudinary } = require("../../middleware/files.middleware");
 const { enumPositionOk, enumPreferredFootOk } = require("../../utils/enumOk");
 const Player = require("../models/Player.model");
@@ -21,7 +22,7 @@ const create = async (req, res, next) => {
         const playersTeam = req.body?.team
         if (playersTeam) {
             const updateTypes = await Team.findByIdAndUpdate(playersTeam, //? 1r param: el id del elemento que vamos a modificar (añadirle los players)
-                {players: id} //? ------------------------------------------- 2o param: le metemos el id del jugador que estamos creando a la propiedad player del team que hemos puesto en el body
+                {$push: {players: id}} //? ------------------------------------------- 2o param: le metemos el id del jugador que estamos creando a la propiedad player del team que hemos puesto en el body
             )
         } //todo ------------------------------------------------------------------
         
@@ -215,11 +216,37 @@ const deletePlayer = async (req, res, next) => {
     }
 };
 
+
+// todo -----------------------------------------------------
+// todo -------------- EXTRA CONTROLLERS --------------------
+// todo -----------------------------------------------------
+
+
+//! --------------- FILTER 90+ PLAYERS -----------------
+const filter90Players = async (req, res, next) => {
+    try {
+        const bestPlayers = await Player.find({rating: {$gt: 90}}) //? me devuelve en array los jugadores con un rating mayor que 90
+        const arrayResumido = bestPlayers.map((player) => ({
+            name: player.name,
+            rating: player.rating,
+            league: player.league,
+            id: player._id
+        }))
+        return res
+            .status(arrayResumido.length > 0 ? 200 : 404)
+            .json(arrayResumido.length > 0 ? arrayResumido : "No se han encontrado jugadores con rating mayor a 90 en la DB/BackEnd ❌")
+    } catch (error) {
+        return next(setError(500, error.message || "Error general al Filtrar Jugadores con 90 o + de Rating ❌"))
+    }
+}
+
 module.exports = {
     create,
     getById,
     getAll,
     getByName,
     update,
-    deletePlayer
+    deletePlayer,
+
+    filter90Players
 }

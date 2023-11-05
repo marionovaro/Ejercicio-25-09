@@ -597,6 +597,11 @@ const deleteUser = async (req, res, next) => {
     }
 }
 
+// todo -----------------------------------------------------
+// todo -------------- EXTRA CONTROLLERS --------------------
+// todo -----------------------------------------------------
+
+
 //! ------------------- ADD FAV TEAM ----------------------
 const addFavTeam = async (req, res, next) => {
     try {
@@ -764,6 +769,7 @@ module.exports = {
     modifyPassword,
     update,
     deleteUser,
+    
     addFavTeam,
     addFavPlayer,
     getFavTeams,

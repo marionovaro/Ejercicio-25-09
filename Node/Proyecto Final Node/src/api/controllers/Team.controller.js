@@ -255,6 +255,12 @@ const deleteTeam = async (req, res, next) => {
     }
 };
 
+
+// todo -----------------------------------------------------
+// todo -------------- EXTRA CONTROLLERS --------------------
+// todo -----------------------------------------------------
+
+
 //! --------------- SORT by POINTS and SHOW SELECTED INFO ----------------
 const sortTeamsbyPoints = async (req, res, next) => {
     try {
@@ -297,6 +303,10 @@ const sortTeamsbyNetWorth = async (req, res, next) => {
 
 
 
+
+
+
+
 module.exports = {
     create,
     togglePlayer,
@@ -306,5 +316,5 @@ module.exports = {
     update,
     deleteTeam,
     sortTeamsbyPoints,
-    sortTeamsbyNetWorth
+    sortTeamsbyNetWorth,
 }

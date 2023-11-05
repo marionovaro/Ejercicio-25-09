@@ -8,7 +8,7 @@ const {
     update,
     deleteTeam,
     sortTeamsbyPoints,
-    sortTeamsbyNetWorth
+    sortTeamsbyNetWorth,
 } = require("../controllers/Team.controller");
 
 const TeamRoutes = require("express").Router();
