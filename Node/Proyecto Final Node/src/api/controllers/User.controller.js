@@ -96,7 +96,7 @@ const registerLargo = async (req, res, next) => {
     }
 }
 
-//! ------------------------- REGISTER CON EL ESTADO (traemos la funcion sendEmail que hace el envío) -------------------------------------------
+//! ------ REGISTER CON EL ESTADO (traemos la funcion sendEmail que hace el envío) -------
 const registerEstado = async (req, res) => {
     let catchImg = req.file?.path;
     try {
@@ -812,6 +812,7 @@ const getFavPlayers = async (req, res, next) => {
 
 
 module.exports = {
+    //! MAIN
     registerLargo,
     registerEstado,
     registerWithRedirect,
@@ -830,6 +831,7 @@ module.exports = {
     update,
     deleteUser,
     
+    //! EXTRA
     addFavTeam,
     addFavPlayer,
     addFollow,
