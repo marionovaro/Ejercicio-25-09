@@ -6,7 +6,8 @@ const {
     getByName,
     update,
     deletePlayer,
-    filter90Players
+    filter90Players,
+    sortPlayersbyRating
 } = require("../controllers/Player.controller");
 
 const PlayerRoutes = require("express").Router();
@@ -19,6 +20,6 @@ PlayerRoutes.patch("/:id", upload.single("image"), update);
 PlayerRoutes.delete("/:id", deletePlayer);
 
 PlayerRoutes.get("/filter90rating/players", filter90Players)
-
+PlayerRoutes.get("/sortrating/players", sortPlayersbyRating)
 
 module.exports = PlayerRoutes

@@ -29,7 +29,7 @@ UserRoutes.post("/register",upload.single("image"), registerLargo);
 UserRoutes.post("/registerUtil", upload.single("image"), registerEstado);
 UserRoutes.post("/registerRedirect", upload.single("image"), registerWithRedirect);
 UserRoutes.get("/:id", getById);
-UserRoutes.get("/", getAll);
+UserRoutes.get("/", getAll); 
 UserRoutes.get("/byName/:name", getByName);
 UserRoutes.post("/login", login);
 UserRoutes.post("/login/autologin", autologin);

@@ -150,7 +150,7 @@ const registerEstado = async (req, res) => {
     }
 }
 
-//! ------------------------- REGISTER DEL REDIRECT -------------------------------------------
+//! ------------------------- REGISTER with REDIRECT -------------------------------------------
 const registerWithRedirect = async (req, res, next) => {
     let catchImg = req.file?.path;
     try {

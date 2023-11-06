@@ -45,6 +45,7 @@ const UserSchema = new mongoose.Schema(
           image: {
             type: String,
           },
+          
           favPlayers: [{type: mongoose.Schema.Types.ObjectId, ref: "Player"}],
           favTeams: [{type: mongoose.Schema.Types.ObjectId, ref: "Team"}],
           selectedPlayer: [{type: mongoose.Schema.Types.ObjectId, ref: "Player"}]

@@ -36,9 +36,10 @@ const togglePlayer = async (req, res, next) => {
         const {players} = req.body; //? ------------------------- enviaremos esto por el req.body "12412242253,12535222232,12523266346", que son los id de los jugadores del equipo
         const teamById = await Team.findById(id); //? ----------- guardamos en variable el equipo buscado por id
         if (teamById) { //? ------------------------------------- si equpio existe:
-            const arrayIdPlayers = players.split(",") //? --------- los id de los jugadores que metemos en el body (4a linea funcion) las metemos en un array y las separamos por comas
-            Promise.all(
-                arrayIdPlayers.map(async (player) => { //? ------ recorremos el array que hemos creado lleno de players
+            const arrayIdPlayers = players.split(",") //? ------- los id de los jugadores que metemos en el body (4a linea funcion) las metemos en un array y las separamos por comas
+            let jugadoresMetidos
+            Promise.all([
+                jugadoresMetidos = arrayIdPlayers.map(async (player) => { //? ------ recorremos el array que hemos creado lleno de players
                     if (teamById.players.includes(player)) { //?- si el jugador ya está dentro del tipo de moto:     
                         console.log("Lo incluyo")
                         //todo ---------- SACAMOS - $PULL ------------- !// (sacamos el jugador del equipo (está dentro de un array en forma de id, y sacamos este id))
@@ -75,12 +76,16 @@ const togglePlayer = async (req, res, next) => {
                             res.status(404).json({message: "Error al añadir el Jugador, al Equipo", error: error.message});
                         }
                     }
-                })
-            ).then(async () => {
-                return res.status(200).json({
-                    dataUpdate: await Team.findById(id).populate("players"), //? mostramos el equipo que ya tiene los cambios hechos / el populate es para que no solo muestre los id
-                });
+                }),
+
+            ]).then(async () => {
+                console.log("estoy en el .then")
+                //! return res.status(200).json({ -------------------------------------- CAMBIADO !!!!!!!!!1! ----------------------------
+                //!     dataUpdate: await Team.findById(id).populate("players"), //? mostramos el equipo que ya tiene los cambios hechos / el populate es para que no solo muestre los id
+                //! });
+                res.redirect(307, `http://localhost:8081/api/v1/teams/players90/${id}/${players}`) //? lo que estamos diciendo es que rediriga a esta página que te manda añade/quita el jugador si tiene rating de +90, es una pagina que tiene de endpoint el id del equipo del jugador para meterle si se puede, en la propiedad ninetyplayers           
             });
+
         } else {
             res.status(404).json("este equipo no existe ❌")
         }
@@ -329,8 +334,51 @@ const sortTeamsbyLeagueandRanking = async (req, res, next) => {
     }
 }
 
-//! --------------- FILTER by 90+ PLAYERS ----------------
+//! --------------- ADD/DELETE 90+ PLAYERS ----------------
+const add90players = async (req, res, next) => {
+    console.log("HE ENTRADO")
+    try {
+        const {id, players} = req.params; //? ---------------------- obtenemos el id del equipo que queremos cambiar y los id de los jugadores a evaluar para posiblemente meter en ninetyplayers ("12412242253,12535222232,12523266346")
+        const teamById = await Team.findById(id); //? -------------- guardamos en variable el equipo buscado por id
+        const arrayIdPlayers = players.split(",") //? -------------- los id de los jugadores que metemos en el body (4a linea funcion) las metemos en un array y las separamos por comas
+        arrayIdPlayers.map(async (player) => { //? ----------------- recorremos el array que hemos creado lleno de players
+            const playerById = await Player.findById(player) //? --- cogemos el elemento del jugador entero para poder acceder luego a su rating para ver si es superior a 90
+            if (!teamById.players.includes(player)) { //? ---------- miramos si el jugador ya está para quitarlo o añadirlo
+                if (playerById.rating >= 90) { //? ----------------- si el rating es superior a 90, lo metemos. si no lo es, no hacemos nada
+                    try {
+                        await Team.findByIdAndUpdate(teamById,
+                            {$push: {ninetyplayers: player}}
+                            )
+                    } catch (error) {
+                        return res.status(404).json({message: "error al añadir jugador en el club de los 90 de Rating ❌", error: error.message})
+                    }
+                }
+            } else {
+                try {
+                    await Team.findByIdAndUpdate(teamById,
+                        {$pull: {ninetyplayers: player}}
+                        )
+                } catch (error) {
+                    return res.status(404).json({message: "error al quitar jugador del club de los 90 de Rating ❌", error: error.message})
+                }
+            }
+        })
+        } catch (error) {
+            return next(setError(500, error.message || "Error general al añadir/quitar Jugador en el club de los 90 de Rating ❌"))
+    }
+}
 
+//! --------------- FILTER by 90+ PLAYERS ----------------
+const filterTeam90Players = async (req, res, next) => {
+        try {
+            const equipos = await Team.find()
+            const funcion = equipos.map((team) => {
+                const teamPlayers = Player.find({team: team})
+            })
+        } catch (error) {
+            
+        }
+}
 
 
 
@@ -347,5 +395,6 @@ module.exports = {
 
     sortTeamsbyPoints,
     sortTeamsbyNetWorth,
-    sortTeamsbyLeagueandRanking
+    sortTeamsbyLeagueandRanking,
+    add90players
 }

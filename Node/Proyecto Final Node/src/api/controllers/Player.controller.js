@@ -15,7 +15,6 @@ const create = async (req, res, next) => {
         } else {
             newPlayer.image = "https://s.hs-data.com/bilder/spieler/gross/619081.jpg?fallback=png"
         }
-
         const savePlayer = await newPlayer.save(); //? ---------------------- GUARDAMOS EL JUGADOR EN LA BASE DE DATOS (DB) O BACKEND
         //todo ----------------- INTENTO RECIPROCIDAD EN EL CREATE ---------------- 
         const id = savePlayer._id //? obtenemos el id a través de _id (FORMA PARA OBTENER EL ID)
@@ -27,7 +26,8 @@ const create = async (req, res, next) => {
         } //todo ------------------------------------------------------------------
         
         if (savePlayer) { //? si se ha guardado correctamente (savePlayer existe)
-                res.status(200).json(savePlayer);
+                 res.status(200).json(savePlayer); //!--------------------------------------------------------------------- NO CAMBIADO !!!!!!!!!!!!!
+                // res.redirect(307, `http://localhost:8081/api/v1/teams/players90/${playersTeam}/${id}`, console.log("entreee paa"))
             } else {
                 return res.status(404).json({message: "No se ha podido guardar el jugador en la DB ❌", error: error.message})
             }
@@ -226,12 +226,13 @@ const deletePlayer = async (req, res, next) => {
 const filter90Players = async (req, res, next) => {
     try {
         const bestPlayers = await Player.find({rating: {$gt: 90}}) //? me devuelve en array los jugadores con un rating mayor que 90
-        const arrayResumido = bestPlayers.map((player) => ({
+        const arrayResumido = bestPlayers.map((player) => ({ //? recorro el array de jugadores para que me de la info de cada jugador que yo quiera 
             name: player.name,
             rating: player.rating,
-            league: player.league,
-            id: player._id
+            team: player.team, //! como hacer que esto muestre el nombre en vez del id
+            id: player._id,
         }))
+
         return res
             .status(arrayResumido.length > 0 ? 200 : 404)
             .json(arrayResumido.length > 0 ? arrayResumido : "No se han encontrado jugadores con rating mayor a 90 en la DB/BackEnd ❌")
@@ -240,6 +241,25 @@ const filter90Players = async (req, res, next) => {
     }
 }
 
+//! --------------- SORT BY RATING -----------------
+const sortPlayersbyRating = async (req, res, next) => {
+    try {
+        const playersArray = await Player.find()
+        playersArray.sort((a, b) => {
+            return b.rating - a.rating
+        })
+        const arrayResumido = playersArray.map((player) => ({
+            name: player.name,
+            networth: player.rating,
+            team: player.team
+        }))
+        return res
+        .status(arrayResumido.length > 0 ? 200 : 404)
+        .json(arrayResumido.length > 0 ? arrayResumido : "No se han encontrado jugadores en la DB/BackEnd ❌")
+    } catch (error) {
+        return next(setError(500, error.message || "Error general al ordenar Jugadores por Rating ❌"))
+    }
+}
 module.exports = {
     create,
     getById,
@@ -248,5 +268,6 @@ module.exports = {
     update,
     deletePlayer,
 
-    filter90Players
+    filter90Players,
+    sortPlayersbyRating
 }
