@@ -265,33 +265,6 @@ const deleteTeam = async (req, res, next) => {
 // todo -------------- EXTRA CONTROLLERS --------------------
 // todo -----------------------------------------------------
 
-//! --------------- FILTER by LEAGUE + SORT by RANKING ----------------
-const sortTeamsbyLeagueandRanking = async (req, res, next) => {
-    try {
-        const {league} = req.params
-        const teamsArray = await Team.find({league: league})
-
-        const resultEnum = enumLeagueOk(league); //? checkea si el valor introducido en param (league) coincide con el enum (enumOk en utils) y devuelve check: true/false
-        if (!resultEnum.check) {
-            return res.status(404).json("La liga indicada en los parémetros no existe o está mal escrita, mira el modelo para asegurarte❌")
-        }
-
-        teamsArray.sort((a, b) => {
-            return b.ranking - a.ranking //? le decimos que ordene de manera descendiente (ascendiente sería a - b)
-        })
-        const arrayResumido = teamsArray.map((team) => ({ //? que nos muestre solo esta información para no tener ese montón de datos, solo lo relevante
-            name: team.name,
-            ranking: team.ranking,
-            points: team.points,
-            league: team.league
-        }))
-        return res
-        .status(arrayResumido.length > 0 ? 200 : 404)
-        .json(arrayResumido.length > 0 ? arrayResumido : `No se han encontrado equipos de la ${league} en la DB/BackEnd ❌`)
-    } catch (error) {
-        return next(setError(500, error.message || "Error general al filtar por Liga y ordenar por Ranking ❌"))
-    }
-}
 
 //! --------------- SORT GENERAL DESCENDING----------------
 const sortTeamsbyDescending = async (req, res, next) => {
@@ -401,7 +374,7 @@ const filterGeneralNum = async (req, res, next) => {
         .status(arrayResumido.length > 0 ? 200 : 404)
         .json(arrayResumido.length > 0 ? arrayResumido : `No se han encontrado equipos con ${filter} mayor que ${gt} y menor que ${lt} en la DB/BackEnd ❌`)
     } catch (error) {
-        
+        return next(setError(500, error.message || `Error general al filtrar Equipos por ${filter} ❌`))
     }
 }
 
@@ -424,7 +397,17 @@ const filterAndSort = async (req, res, next) => {
                 break;
         }
 
-        
+        switch (filter) {
+            case "ranking":
+            case "points":
+            case "overalltrophies":
+            case "seasontrophies":
+            case "networth":
+                teamsArray.sort((a, b) => {
+                    return b[filter] - a[filter] //? le decimos que ordene de manera DESCENDIENTE
+                })
+                break;
+        }
 
         const arrayResumido = teamsArray.map((team) => ({ //? que nos muestre solo esta información para no tener ese montón de datos, solo la info de la propiedad en la que filtramos
             name: team.name,
@@ -432,9 +415,9 @@ const filterAndSort = async (req, res, next) => {
         }))
         return res
         .status(arrayResumido.length > 0 ? 200 : 404)
-        .json(arrayResumido.length > 0 ? arrayResumido : `No se han encontrado equipos con ${filter} mayor que ${gt} y menor que ${lt} en la DB/BackEnd ❌`)
+        .json(arrayResumido.length > 0 ? {Equipos: arrayResumido, Explicación: `Equipos ordenados según ${filter} de mayor a menor`} : `No se han encontrado equipos con ${filter} mayor que ${gt} y menor que ${lt} en la DB/BackEnd ❌`)
     } catch (error) {
-        
+        return next(setError(500, error.message || `Error general al filtrar Equipos por ${filter} y ordenar de manera desdenciente ❌`))
     }
 }
 
@@ -517,6 +500,35 @@ const add90players = async (req, res, next) => {
     }
 }
 
+//! --------------- FILTER by LEAGUE + SORT by RANKING ----------------
+const sortTeamsbyLeagueandRanking = async (req, res, next) => {
+    try {
+        const {league} = req.params
+        const teamsArray = await Team.find({league: league})
+
+        const resultEnum = enumLeagueOk(league); //? checkea si el valor introducido en param (league) coincide con el enum (enumOk en utils) y devuelve check: true/false
+        if (!resultEnum.check) {
+            return res.status(404).json("La liga indicada en los parémetros no existe o está mal escrita, mira el modelo para asegurarte❌")
+        }
+
+        teamsArray.sort((a, b) => {
+            return b.ranking - a.ranking //? le decimos que ordene de manera descendiente (ascendiente sería a - b)
+        })
+        const arrayResumido = teamsArray.map((team) => ({ //? que nos muestre solo esta información para no tener ese montón de datos, solo lo relevante
+            name: team.name,
+            ranking: team.ranking,
+            points: team.points,
+            league: team.league
+        }))
+        return res
+        .status(arrayResumido.length > 0 ? 200 : 404)
+        .json(arrayResumido.length > 0 ? arrayResumido : `No se han encontrado equipos de la ${league} en la DB/BackEnd ❌`)
+    } catch (error) {
+        return next(setError(500, error.message || "Error general al filtar por Liga y ordenar por Ranking ❌"))
+    }
+}
+
+
 module.exports = {
     //! MAIN
     create,
@@ -528,13 +540,14 @@ module.exports = {
     deleteTeam,
 
     //! EXTRA
-    sortTeamsbyLeagueandRanking,
     sortTeamsbyDescending,
     sortTeamsbyAscending,
     filterGeneralNum,
+    filterAndSort,
 
     //! DESCARTADOS
     sortTeamsbyPoints,
     sortTeamsbyNetWorth,
     add90players,
+    sortTeamsbyLeagueandRanking,
 }

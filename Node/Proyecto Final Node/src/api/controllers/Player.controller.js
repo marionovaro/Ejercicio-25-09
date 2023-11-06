@@ -221,24 +221,6 @@ const deletePlayer = async (req, res, next) => {
 // todo -------------- EXTRA CONTROLLERS --------------------
 // todo -----------------------------------------------------
 
-//! --------------- FILTER 90+ PLAYERS -----------------
-const filter90Players = async (req, res, next) => {
-    try {
-        const bestPlayers = await Player.find({rating: {$gt: 90}}).populate("team") //? me devuelve en array los jugadores con un rating mayor que 90 || el populate hace que la propiedad team me de toda la info del team
-        const arrayResumido = bestPlayers.map((player) => ({ //? recorro el array de jugadores para que me de la info de cada jugador que yo quiera 
-            name: player.name,
-            rating: player.rating,
-            team: player.team.map((propiedad) => ({name: propiedad.name})), //! como hacer que esto muestre el nombre en vez del id
-            id: player._id,
-        }))
-        return res
-            .status(arrayResumido.length > 0 ? 200 : 404)
-            .json(arrayResumido.length > 0 ? arrayResumido : "No se han encontrado jugadores con rating mayor a 90 en la DB/BackEnd ❌")
-    } catch (error) {
-        return next(setError(500, error.message || "Error general al Filtrar Jugadores con 90 o + de Rating ❌"))
-    }
-}
-
 //! --------------- SORT GENERAL DESCENDING----------------
 const sortPlayersbyDescending = async (req, res, next) => {
     try {
@@ -335,7 +317,38 @@ const sortPlayersbyAscending = async (req, res, next) => {
     }
 }
 
-//! --------------- FILTER PREFERRED FOOT/LEAGUE ----------------
+//! --------------- FILTER GENERAL NUMÉRICO ----------------
+const filterGeneralNum = async (req, res, next) => {
+    try {
+        let playersArray
+        const {filter, gt, lt} = req.params; //? en el param ponemos 1o: propiedad a filtrar, 2o: mayor que (Greater Than), 3o: menor que (Lower Than)
+        switch (filter) {
+            case "number":
+            case "age":
+            case "marketvalue":
+            case "goals":
+            case "assist":
+            case "rating":
+                playersArray = await Player.find({$and: [{[filter]: {$gt: gt}}, {[filter]: {$lt: lt}}]})
+                break;
+        
+            default:
+                return res.status(404).json("La propiedad por la que quiere filtrar no existe/está mal escrita ❌, compruebe el modelo de datos para checkear como se escribe")
+                break;
+        }
+        const arrayResumido = playersArray.map((team) => ({ //? que nos muestre solo esta información para no tener ese montón de datos, solo la info de la propiedad en la que filtramos
+            name: team.name,
+            [filter]: team[filter],
+        }))
+        return res
+        .status(arrayResumido.length > 0 ? 200 : 404)
+        .json(arrayResumido.length > 0 ? arrayResumido : `No se han encontrado jugadores con ${filter} mayor que ${gt} y menor que ${lt} en la DB/BackEnd ❌`)
+    } catch (error) {
+        return next(setError(500, error.message || `Error general al filtrar Jugadores por ${filter} ❌`))
+    }
+}
+
+//! --------------- FILTER POSITION / PREFERRED FOOT ----------------
 const filterPlayersEnum = async (req, res, next) => {
     try {
         const {filter, value} = req.params
@@ -365,6 +378,22 @@ const filterPlayersEnum = async (req, res, next) => {
     }
 }
 
+//! --------------- GET LIKE GENDER DIVISION ----------------
+const genderSeparation = async (req, res, next) => {
+    try {
+        const {id} = req.params //? cogemos id del jugador al que vamos a examinar
+        const player = await Player.findById(id)
+        const men = 0
+        const woman = 0 //! ahora lo que tengo que hacer es recorrer el array y en cada user del likes examinar si es hombre sumar a hombre y si es mujer, sumar a mujer
+        const arrayLikes = player.likes
+        return res
+        .status(arrayLikes.length > 0 ? 200 : 404)
+        .json(arrayLikes.length > 0 ? arrayLikes : `No se han encontrado jugadores con el filtro ${filter} en ${value} en la DB/BackEnd ❌`)
+    } catch (error) {
+        return next(setError(500, error.message || `Error general al filtar jugadores por ${filter} ❌`))
+    }
+}
+
 
 // todo -----------------------------------------------------
 // todo ----------- CONTROLLERS DESCARTADOS -----------------
@@ -389,6 +418,24 @@ const sortPlayersbyRating = async (req, res, next) => {
     }
 }
 
+//! --------------- FILTER 90+ PLAYERS -----------------
+const filter90Players = async (req, res, next) => {
+    try {
+        const bestPlayers = await Player.find({rating: {$gt: 90}}).populate("team") //? me devuelve en array los jugadores con un rating mayor que 90 || el populate hace que la propiedad team me de toda la info del team
+        const arrayResumido = bestPlayers.map((player) => ({ //? recorro el array de jugadores para que me de la info de cada jugador que yo quiera 
+            name: player.name,
+            rating: player.rating,
+            team: player.team.map((propiedad) => ({name: propiedad.name})), //! como hacer que esto muestre el nombre en vez del id
+            id: player._id,
+        }))
+        return res
+            .status(arrayResumido.length > 0 ? 200 : 404)
+            .json(arrayResumido.length > 0 ? arrayResumido : "No se han encontrado jugadores con rating mayor a 90 en la DB/BackEnd ❌")
+    } catch (error) {
+        return next(setError(500, error.message || "Error general al Filtrar Jugadores con 90 o + de Rating ❌"))
+    }
+}
+
 
 module.exports = {
     //! MAIN
@@ -400,11 +447,14 @@ module.exports = {
     deletePlayer,
 
     //! EXTRA
-    filter90Players,
     sortPlayersbyDescending,
     sortPlayersbyAscending,
+    filterGeneralNum,
     filterPlayersEnum,
+    genderSeparation,
+    
 
     //! DESCARTADOS
     sortPlayersbyRating,
+    filter90Players,
 }

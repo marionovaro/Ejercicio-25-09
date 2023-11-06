@@ -9,13 +9,15 @@ const {
     deletePlayer,
 
     //! EXTRA
-    filter90Players,
     sortPlayersbyDescending,
     sortPlayersbyAscending,
+    filterGeneralNum,
     filterPlayersEnum,
+    genderSeparation,
 
     //! DESCARTADOS
     sortPlayersbyRating,
+    filter90Players,
 
 } = require("../controllers/Player.controller");
 
@@ -30,13 +32,15 @@ PlayerRoutes.delete("/:id", deletePlayer);
 
 
 //! Controladores Extra
-PlayerRoutes.get("/filter90rating/players", filter90Players)
 PlayerRoutes.get("/sortdescending/players/:stat", sortPlayersbyDescending)
 PlayerRoutes.get("/sortascending/players/:stat", sortPlayersbyAscending)
+PlayerRoutes.get("/filter/players/:filter/:gt/:lt", filterGeneralNum)
 PlayerRoutes.get("/filterenum/:filter/:value", filterPlayersEnum)
+PlayerRoutes.get("/genderlike/:id", genderSeparation)
 
 
 //! Controladores Descartados
 PlayerRoutes.get("/sortrating/players", sortPlayersbyRating)
+PlayerRoutes.get("/filter90rating/players", filter90Players)
 
 module.exports = PlayerRoutes

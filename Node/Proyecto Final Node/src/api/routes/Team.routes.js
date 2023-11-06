@@ -8,12 +8,13 @@ const {
     getByName,
     update,
     deleteTeam,
+    sortTeamsbyLeagueandRanking,
 
     //! EXTRA
-    sortTeamsbyLeagueandRanking,
     sortTeamsbyDescending,
     sortTeamsbyAscending,
     filterGeneralNum,
+    filterAndSort,
 
     //! DESCARTADOS
     sortTeamsbyPoints,
@@ -34,15 +35,16 @@ TeamRoutes.delete("/:id", deleteTeam);
 
 
 //! Controladores Extra
-TeamRoutes.get("/sortranking/:league", sortTeamsbyLeagueandRanking)
 TeamRoutes.get("/sortdescending/teams/:stat", sortTeamsbyDescending)
 TeamRoutes.get("/sortascending/teams/:stat", sortTeamsbyAscending)
 TeamRoutes.get("/filter/teams/:filter/:gt/:lt", filterGeneralNum)
+TeamRoutes.get("/filtersort/teams/:filter/:gt/:lt", filterAndSort)
 
 
 //! Controladores Descartados
 TeamRoutes.get("/sortbypoints/teams", sortTeamsbyPoints)
 TeamRoutes.get("/sortbynetworth/teams", sortTeamsbyNetWorth)
 TeamRoutes.patch("/players/:id/:players", add90players) //todo ---- REDIRECT
+TeamRoutes.get("/sortranking/:league", sortTeamsbyLeagueandRanking)
 
 module.exports = TeamRoutes
