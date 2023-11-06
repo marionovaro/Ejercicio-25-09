@@ -221,7 +221,6 @@ const deletePlayer = async (req, res, next) => {
 // todo -------------- EXTRA CONTROLLERS --------------------
 // todo -----------------------------------------------------
 
-
 //! --------------- FILTER 90+ PLAYERS -----------------
 const filter90Players = async (req, res, next) => {
     try {
@@ -240,6 +239,136 @@ const filter90Players = async (req, res, next) => {
     }
 }
 
+//! --------------- SORT GENERAL DESCENDING----------------
+const sortPlayersbyDescending = async (req, res, next) => {
+    try {
+        const {stat} = req.params
+        const playersArray = await Player.find()
+        switch (stat) {
+            case "number":
+            case "age":
+            case "marketvalue":
+            case "goals":
+            case "assist":
+            case "rating":
+                playersArray.sort((a, b) => {
+                    return b[stat] - a[stat] //? le decimos que ordene de manera descendiente (ascendiente sería a - b)
+                })
+                break;
+
+            case "likes": //? lo hacemos diferente porque tenemos que evaluar la length del array para ver los likes
+                playersArray.sort((a, b) => {
+                    return b[stat].length - a[stat].length //? le decimos que ordene de manera descendiente (ascendiente sería a - b)
+                })
+                break;
+            
+            case "name":
+                playersArray.sort((a, b) => {
+                    a = a[stat].toLowerCase();
+                    b = b[stat].toLowerCase();
+                    return a[stat] < b[stat] ? -1 : 1  //? le decimos que ordene ALFABÉTICAMENTE (al revés sería b - a)
+                })
+                break;
+
+            default:
+                return res.status(404).json("La propiedad por la que quiere ordenar no existe/está mal escrita ❌, compruebe el modelo de datos para checkear como se escribe")
+                break;
+        }
+        let arrayResumido
+        if (stat != "likes") {
+            arrayResumido = playersArray.map((player) => ({ //? que nos muestre solo esta información para no tener ese montón de datos, solo lo relevante
+                name: player.name,
+                [stat]: player[stat],
+            }))
+        } else { //? igual que antes, lo hacemos para poder decirle que nos muestre solamente el numero de likes, no los id que no nos interesan
+            arrayResumido = playersArray.map((player) => ({
+                name: player.name,
+                [stat]: player[stat].length,
+            }))
+        }
+        return res
+        .status(arrayResumido.length > 0 ? 200 : 404)
+        .json(arrayResumido.length > 0 ? arrayResumido : "No se han encontrado jugadores en la DB/BackEnd ❌")
+    } catch (error) {
+        return next(setError(500, error.message || `Error general al ordenar Jugadores según ${stat} de forma Descendiente ❌`))
+    }
+}
+
+//! --------------- SORT GENERAL ASCENDING ----------------
+const sortPlayersbyAscending = async (req, res, next) => {
+    try {
+        const {stat} = req.params
+        const playersArray = await Player.find()
+        switch (stat) {
+            case "number":
+            case "age":
+            case "marketvalue":
+            case "goals":
+            case "assist":
+            case "rating":
+                playersArray.sort((a, b) => {
+                    return a[stat] - b[stat] //? le decimos que ordene de manera ASCENDIENTE
+                })
+                break;
+            
+            case "name":
+                playersArray.sort((a, b) => {
+                    a = a[stat].toLowerCase();
+                    b = b[stat].toLowerCase();
+                    return a[stat] > b[stat] ? -1 : 1 //? le decimos que ordene ALFABÉTICAMENTE INVERSO
+                })
+                break;
+
+            default:
+                return res.status(404).json("La propiedad por la que quiere ordenar no existe/está mal escrita ❌, compruebe el modelo de datos para checkear como se escribe")
+                break;
+        }
+        const arrayResumido = playersArray.map((player) => ({ //? que nos muestre solo esta información para no tener ese montón de datos, solo lo relevante
+            name: player.name,
+            [stat]: player[stat],
+        }))
+        return res
+        .status(arrayResumido.length > 0 ? 200 : 404)
+        .json(arrayResumido.length > 0 ? arrayResumido : "No se han encontrado jugadores en la DB/BackEnd ❌")
+    } catch (error) {
+        return next(setError(500, error.message || `Error general al ordenar Jugadores según ${stat} de forma Ascendiente ❌`))
+    }
+}
+
+//! --------------- FILTER PREFERRED FOOT/LEAGUE ----------------
+const filterPlayersEnum = async (req, res, next) => {
+    try {
+        const {filter, value} = req.params
+        const playersArray = await Player.find({[filter]: value}) //? buscamos qué jugadores tienen en la propiedad dada por filter, el valor que dan en el url en value
+        console.log(playersArray)
+
+        if (filter == "position") { //? en caso de que el filter sea POSITION
+            const resultEnum = enumPositionOk(value); //? checkea si el valor introducido en param (position) coincide con el enum (enumOk en utils) y devuelve check: true/false
+            if (!resultEnum.check) {
+                return res.status(404).json("La posición indicada en los parémetros no existe o está mal escrita, mira el modelo para asegurarte❌")
+            }
+        } else { //? en caso de que el filter sea PREFERRED FOOT
+            const resultEnum = enumPreferredFootOk(value); //? checkea si el valor introducido en param (preferred foot) coincide con el enum (enumOk en utils) y devuelve check: true/false
+            if (!resultEnum.check) {
+                return res.status(404).json("La pierna de disparo indicada en los parémetros no existe o está mal escrita, mira el modelo para asegurarte❌")
+            }
+        }
+        const arrayResumido = playersArray.map((player) => ({ //? que nos muestre solo esta información para no tener ese montón de datos, solo lo relevante
+            name: player.name,
+            [filter]: player[filter],
+        }))
+        return res
+        .status(arrayResumido.length > 0 ? 200 : 404)
+        .json(arrayResumido.length > 0 ? arrayResumido : `No se han encontrado jugadores con el filtro ${filter} en ${value} en la DB/BackEnd ❌`)
+    } catch (error) {
+        return next(setError(500, error.message || `Error general al filtar jugadores por ${filter} ❌`))
+    }
+}
+
+
+// todo -----------------------------------------------------
+// todo ----------- CONTROLLERS DESCARTADOS -----------------
+// todo -----------------------------------------------------
 //! --------------- SORT BY RATING -----------------
 const sortPlayersbyRating = async (req, res, next) => {
     try {
@@ -259,7 +388,10 @@ const sortPlayersbyRating = async (req, res, next) => {
         return next(setError(500, error.message || "Error general al ordenar Jugadores por Rating ❌"))
     }
 }
+
+
 module.exports = {
+    //! MAIN
     create,
     getById,
     getAll,
@@ -267,6 +399,12 @@ module.exports = {
     update,
     deletePlayer,
 
+    //! EXTRA
     filter90Players,
-    sortPlayersbyRating
+    sortPlayersbyDescending,
+    sortPlayersbyAscending,
+    filterPlayersEnum,
+
+    //! DESCARTADOS
+    sortPlayersbyRating,
 }

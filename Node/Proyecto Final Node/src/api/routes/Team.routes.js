@@ -1,5 +1,6 @@
 const { upload } = require("../../middleware/files.middleware");
 const { 
+    //! MAIN
     create,
     togglePlayer,
     getById,
@@ -7,12 +8,17 @@ const {
     getByName,
     update,
     deleteTeam,
-    sortTeamsbyPoints,
-    sortTeamsbyNetWorth,
+
+    //! EXTRA
     sortTeamsbyLeagueandRanking,
     sortTeamsbyDescending,
     sortTeamsbyAscending,
-    filterGeneral,
+    filterGeneralNum,
+
+    //! DESCARTADOS
+    sortTeamsbyPoints,
+    sortTeamsbyNetWorth,
+    add90players
 
 } = require("../controllers/Team.controller");
 
@@ -26,12 +32,17 @@ TeamRoutes.get("/byName/:name", getByName);
 TeamRoutes.patch("/:id", upload.single("image"), update);
 TeamRoutes.delete("/:id", deleteTeam);
 
-TeamRoutes.get("/sortbypoints/teams", sortTeamsbyPoints)
-TeamRoutes.get("/sortbynetworth/teams", sortTeamsbyNetWorth)
+
+//! Controladores Extra
 TeamRoutes.get("/sortranking/:league", sortTeamsbyLeagueandRanking)
 TeamRoutes.get("/sortdescending/teams/:stat", sortTeamsbyDescending)
 TeamRoutes.get("/sortascending/teams/:stat", sortTeamsbyAscending)
-TeamRoutes.get("/filter/teams/:filter/:gt/:lt", filterGeneral)
+TeamRoutes.get("/filter/teams/:filter/:gt/:lt", filterGeneralNum)
 
+
+//! Controladores Descartados
+TeamRoutes.get("/sortbypoints/teams", sortTeamsbyPoints)
+TeamRoutes.get("/sortbynetworth/teams", sortTeamsbyNetWorth)
+TeamRoutes.patch("/players/:id/:players", add90players) //todo ---- REDIRECT
 
 module.exports = TeamRoutes

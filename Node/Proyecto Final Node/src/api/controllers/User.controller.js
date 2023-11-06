@@ -607,6 +607,7 @@ const addFavTeam = async (req, res, next) => {
     try {
         const {idTeam} = req.params; //? --- recibimos el id del equipo que queremos darle like por el url
         const elementTeam = await Team.findById(idTeam)
+        console.log(elementTeam)
         const {_id, favTeams, name} = req.user; //? recibimos el id del user por el req.user porque es autenticado
 
         if (favTeams.includes(idTeam)){ //! ------------- PULL -----------------
@@ -720,6 +721,65 @@ const addFavPlayer = async (req, res, next) => {
     }
 }
 
+//! ------------------- ADD FOLLOW --------------------
+const addFollow = async (req, res, next) => {
+    try {
+        const {idUser} = req.params; //? --- recibimos el id del usuario que queremos darle follow por el url
+        const elementUser = await User.findById(idUser)
+        const {_id, followed, name} = req.user; //? recibimos el id del user por el req.user porque es autenticado y sabemos quien es por el token
+
+        if (followed.includes(idUser)){ //! ------------- PULL -----------------
+            try {
+                await User.findByIdAndUpdate(_id, { //? actualizamos el usuario. 1r param => condición ()
+                    $pull: {followed: idUser} //? 2o param => ejecución (sacamos id del usuario seguido del user seguidor)
+                });
+                try {
+                    await User.findByIdAndUpdate(idUser, { //? aquí se actualiza el modelo de usuario al que seguimos para sacar al user como follow
+                        $pull: {followers: _id}
+                    });
+                    
+                    // todo --------- RESPONSE ------------- //
+                    
+                    return res.status(200).json({
+                        followerUserUpdate: await User.findById(_id), //? usuario que ha seguido
+                        followedUserUpdate: await User.findById(idUser), //? usuario que ha sido seguido
+                        action: `${name} ha dejado a seguir a ${elementUser.name}`
+                    })
+                } catch (error) {
+                    return res.status(404).json({error: 'Error al unfollow del Usuario Seguido ❌', message: error.message});
+                }
+            } catch (error) {
+                return res.status(404).json({message: "Error al unfollow del User ❌", error: error.message})
+            }
+        } else { //! ---------- PUSH ----------------
+            try {
+                await User.findByIdAndUpdate(_id, { //? actualizamos el usuario. 1r param => condición ()
+                    $push: {followed: idUser} //? 2o param => ejecución (metemos id del usuario seguido del user seguidor)
+                });
+                try {
+                    await User.findByIdAndUpdate(idUser, { //? aquí se actualiza el modelo de usuario al que seguimos para meter al user como follow
+                        $push: {followers: _id}
+                    });
+                    
+                    // todo --------- RESPONSE ------------- //
+                    
+                    return res.status(200).json({
+                        followerUserUpdate: await User.findById(_id), //? usuario que ha seguido
+                        followedUserUpdate: await User.findById(idUser), //? usuario que ha sido seguido
+                        action: `${name} ha empezado a seguir a ${elementUser.name}`
+                    })
+                } catch (error) {
+                    return res.status(404).json({error: 'Error al follow del Usuario Seguido ❌', message: error.message});
+                }
+            } catch (error) {
+                return res.status(404).json({message: "Error al follow del User ❌", error: error.message})
+            }
+        }
+    } catch (error) {
+        return next(setError(500, error.message || "Error general al hacer toggle de Follow ❤️❌"))
+    }
+}
+
 //! ------------------- GET FAV TEAMS ----------------------
 const getFavTeams = async (req, res, next) => {
     try {
@@ -772,6 +832,7 @@ module.exports = {
     
     addFavTeam,
     addFavPlayer,
+    addFollow,
     getFavTeams,
     getFavPlayers
 };

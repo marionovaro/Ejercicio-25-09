@@ -45,10 +45,12 @@ const UserSchema = new mongoose.Schema(
           image: {
             type: String,
           },
-          
+
           favPlayers: [{type: mongoose.Schema.Types.ObjectId, ref: "Player"}],
           favTeams: [{type: mongoose.Schema.Types.ObjectId, ref: "Team"}],
-          selectedPlayer: [{type: mongoose.Schema.Types.ObjectId, ref: "Player"}]
+          selectedPlayer: [{type: mongoose.Schema.Types.ObjectId, ref: "Player"}],
+          followers: [{type: mongoose.Schema.Types.ObjectId, ref: "User"}],
+          followed: [{type: mongoose.Schema.Types.ObjectId, ref: "User"}],
     },
     {
         timestamps: true,

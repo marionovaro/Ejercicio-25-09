@@ -1,6 +1,8 @@
 const { isAuth } = require("../../middleware/auth.middleware")
 const { upload } = require("../../middleware/files.middleware"); //? lo traemos porque hay una subida de ficheros
-const {registerLargo,
+const {
+        //! MAIN
+        registerLargo,
         registerEstado,
         registerWithRedirect,
         sendCode,
@@ -17,10 +19,14 @@ const {registerLargo,
         modifyPassword,
         update,
         deleteUser,
+
+        //! EXTRA
         addFavTeam,
         addFavPlayer,
+        addFollow,
         getFavTeams,
         getFavPlayers
+
 } = require("../controllers/User.controller");
 
 const UserRoutes = require("express").Router()
@@ -42,9 +48,10 @@ UserRoutes.get("/pruebas", [isAuth], exampleAuth);
 UserRoutes.patch("/changepassword", [isAuth], modifyPassword)
 UserRoutes.patch("/update/update", [isAuth], upload.single("image"), update)
 UserRoutes.delete("/", [isAuth], deleteUser)
+//todo ------- EXTRA
 UserRoutes.patch("/toggleTeam/:idTeam", [isAuth], addFavTeam)
 UserRoutes.patch("/togglePlayer/:idPlayer", [isAuth], addFavPlayer)
-
+UserRoutes.patch("/toggleFollow/:idUser", [isAuth], addFollow)
 UserRoutes.get("/favTeams/:id", [isAuth], getFavTeams)
 UserRoutes.get("/favPlayers/:id", [isAuth], getFavPlayers)
 
