@@ -394,7 +394,6 @@ const filterAndSort = async (req, res, next) => {
         
             default:
                 return res.status(404).json("La propiedad por la que quiere filtrar no existe/está mal escrita ❌, compruebe el modelo de datos para checkear como se escribe")
-                break;
         }
 
         switch (filter) {
@@ -421,6 +420,40 @@ const filterAndSort = async (req, res, next) => {
     }
 }
 
+//! --------------- AVERAGE STATS ----------------
+const averageStats = async (req, res, next) => {
+    try {
+        const {stat, teamId} = req.params; //? el stat es la propiedad de la que sacamos media, y el teamId es para poder encontrar los jugadores del equipo
+        let average //? tanto esta variable como teamPlayers, las declaramos fuera para poder acceder luego en el return a ellas
+        let teamPlayers
+        switch (stat) {
+            case "number":
+            case "age":
+            case "marketvalue":
+            case "goals":
+            case "assists":
+            case "rating":
+                let acc = 0
+                let numberPlayers = 0
+                teamPlayers = await Player.find({team: teamId})
+                for (let player of teamPlayers) {
+                    acc += player[stat]
+                    numberPlayers += 1
+                }
+                average = acc/numberPlayers
+                break;
+        
+            default:
+                return res.status(404).json("La propiedad de la que quiere sacar la media no existe/está mal escrita/no es aplicable para este caso ❌, compruebe el modelo de datos para checkear como se escribe")
+                break;
+        }
+        return res
+        .status(teamPlayers.length > 0 ? 200 : 404)
+        .json(teamPlayers.length > 0 ? `Average ${stat}: ${average}` : "No se han encontrado jugadores de este equipo en la DB/BackEnd ❌")
+    } catch (error) {
+        return next(setError(500, error.message || `Error general al sacar la media de ${stat} de los jugadores del equipo ❌`))
+    }
+}
 
 // todo -----------------------------------------------------
 // todo ----------- CONTROLLERS DESCARTADOS -----------------
@@ -544,6 +577,7 @@ module.exports = {
     sortTeamsbyAscending,
     filterGeneralNum,
     filterAndSort,
+    averageStats,
 
     //! DESCARTADOS
     sortTeamsbyPoints,

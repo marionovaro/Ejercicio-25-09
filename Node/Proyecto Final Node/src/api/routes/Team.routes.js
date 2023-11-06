@@ -15,6 +15,7 @@ const {
     sortTeamsbyAscending,
     filterGeneralNum,
     filterAndSort,
+    averageStats,
 
     //! DESCARTADOS
     sortTeamsbyPoints,
@@ -39,6 +40,8 @@ TeamRoutes.get("/sortdescending/teams/:stat", sortTeamsbyDescending)
 TeamRoutes.get("/sortascending/teams/:stat", sortTeamsbyAscending)
 TeamRoutes.get("/filter/teams/:filter/:gt/:lt", filterGeneralNum)
 TeamRoutes.get("/filtersort/teams/:filter/:gt/:lt", filterAndSort)
+TeamRoutes.get("/average/:stat/:teamId", averageStats)
+
 
 
 //! Controladores Descartados

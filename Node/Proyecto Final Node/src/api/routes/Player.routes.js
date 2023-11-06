@@ -36,7 +36,7 @@ PlayerRoutes.get("/sortdescending/players/:stat", sortPlayersbyDescending)
 PlayerRoutes.get("/sortascending/players/:stat", sortPlayersbyAscending)
 PlayerRoutes.get("/filter/players/:filter/:gt/:lt", filterGeneralNum)
 PlayerRoutes.get("/filterenum/:filter/:value", filterPlayersEnum)
-PlayerRoutes.get("/genderlike/:id", genderSeparation)
+PlayerRoutes.get("/genderlike/:userId", genderSeparation)
 
 
 //! Controladores Descartados

@@ -3,6 +3,7 @@ const { deleteImgCloudinary } = require("../../middleware/files.middleware");
 const { enumPositionOk, enumPreferredFootOk } = require("../../utils/enumOk");
 const Player = require("../models/Player.model");
 const Team = require("../models/Team.model");
+const User = require("../models/User.model");
 
 //! --------------- CREATE ----------------
 const create = async (req, res, next) => {
@@ -381,16 +382,32 @@ const filterPlayersEnum = async (req, res, next) => {
 //! --------------- GET LIKE GENDER DIVISION ----------------
 const genderSeparation = async (req, res, next) => {
     try {
-        const {id} = req.params //? cogemos id del jugador al que vamos a examinar
-        const player = await Player.findById(id)
-        const men = 0
-        const woman = 0 //! ahora lo que tengo que hacer es recorrer el array y en cada user del likes examinar si es hombre sumar a hombre y si es mujer, sumar a mujer
+        const {userId} = req.params //? cogemos id del jugador al que vamos a examinar
+        const player = await Player.findById(userId)
+        let men = 0
+        let woman = 0 //! ahora lo que tengo que hacer es recorrer el array y en cada user del likes examinar si es hombre sumar a hombre y si es mujer, sumar a mujer
+        let otros = 0
         const arrayLikes = player.likes
+        console.log(arrayLikes)
+        try {
+            for (let id of arrayLikes) {
+                const user = await User.findById(id)
+                if (user.gender == "hombre") {
+                    men++
+                } else if (user.gender == "mujer") {
+                    woman++
+                } else {
+                    otros++
+                }
+            }
+        } catch (error) {
+            return res.status(404).json({message: "Error al examinar los generos de los usuarios ❌ (bucle)", error: error.message})
+        }
         return res
         .status(arrayLikes.length > 0 ? 200 : 404)
-        .json(arrayLikes.length > 0 ? arrayLikes : `No se han encontrado jugadores con el filtro ${filter} en ${value} en la DB/BackEnd ❌`)
+        .json(arrayLikes.length > 0 ? {hombres: men, mujeres: woman, otros: otros} : `No se han encontrado likes para el jugador ${player.name} en la DB/BackEnd ❌`)
     } catch (error) {
-        return next(setError(500, error.message || `Error general al filtar jugadores por ${filter} ❌`))
+        return next(setError(500, error.message || `Error general al buscar likes por género ❌`))
     }
 }
 
