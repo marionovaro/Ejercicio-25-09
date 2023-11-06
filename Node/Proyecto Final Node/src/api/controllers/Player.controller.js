@@ -26,8 +26,8 @@ const create = async (req, res, next) => {
         } //todo ------------------------------------------------------------------
         
         if (savePlayer) { //? si se ha guardado correctamente (savePlayer existe)
-                 res.status(200).json(savePlayer); //!--------------------------------------------------------------------- NO CAMBIADO !!!!!!!!!!!!!
-                // res.redirect(307, `http://localhost:8081/api/v1/teams/players90/${playersTeam}/${id}`, console.log("entreee paa"))
+                //  res.status(200).json(savePlayer); //!--------------------------------------------------------------------- NO CAMBIADO !!!!!!!!!!!!!
+                res.redirect(302, `http://localhost:8081/api/v1/teams/players90/${playersTeam}/${id}`, console.log("entreee paa"))
             } else {
                 return res.status(404).json({message: "No se ha podido guardar el jugador en la DB ❌", error: error.message})
             }
@@ -225,14 +225,13 @@ const deletePlayer = async (req, res, next) => {
 //! --------------- FILTER 90+ PLAYERS -----------------
 const filter90Players = async (req, res, next) => {
     try {
-        const bestPlayers = await Player.find({rating: {$gt: 90}}) //? me devuelve en array los jugadores con un rating mayor que 90
+        const bestPlayers = await Player.find({rating: {$gt: 90}}).populate("team") //? me devuelve en array los jugadores con un rating mayor que 90 || el populate hace que la propiedad team me de toda la info del team
         const arrayResumido = bestPlayers.map((player) => ({ //? recorro el array de jugadores para que me de la info de cada jugador que yo quiera 
             name: player.name,
             rating: player.rating,
-            team: player.team, //! como hacer que esto muestre el nombre en vez del id
+            team: player.team.map((propiedad) => ({name: propiedad.name})), //! como hacer que esto muestre el nombre en vez del id
             id: player._id,
         }))
-
         return res
             .status(arrayResumido.length > 0 ? 200 : 404)
             .json(arrayResumido.length > 0 ? arrayResumido : "No se han encontrado jugadores con rating mayor a 90 en la DB/BackEnd ❌")

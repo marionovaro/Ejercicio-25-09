@@ -266,7 +266,7 @@ const deleteTeam = async (req, res, next) => {
 // todo -----------------------------------------------------
 
 
-//! --------------- SORT by POINTS and SHOW SELECTED INFO ----------------
+//! --------------- SORT by POINTS ----------------
 const sortTeamsbyPoints = async (req, res, next) => {
     try {
         const teamsArray = await Team.find()
@@ -335,53 +335,150 @@ const sortTeamsbyLeagueandRanking = async (req, res, next) => {
 }
 
 //! --------------- ADD/DELETE 90+ PLAYERS ----------------
-const add90players = async (req, res, next) => {
-    console.log("HE ENTRADO")
+// const add90players = async (req, res, next) => {
+//     console.log("HE ENTRADO")
+//     try {
+//         const {id, players} = req.params; //? ---------------------- obtenemos el id del equipo que queremos cambiar y los id de los jugadores a evaluar para posiblemente meter en ninetyplayers ("12412242253,12535222232,12523266346")
+//         const teamById = await Team.findById(id); //? -------------- guardamos en variable el equipo buscado por id
+//         const arrayIdPlayers = players.split(",") //? -------------- los id de los jugadores que metemos en el body (4a linea funcion) las metemos en un array y las separamos por comas
+//         arrayIdPlayers.map(async (player) => { //? ----------------- recorremos el array que hemos creado lleno de players
+//             const playerById = await Player.findById(player) //? --- cogemos el elemento del jugador entero para poder acceder luego a su rating para ver si es superior a 90
+//             if (!teamById.players.includes(player)) { //? ---------- miramos si el jugador ya está para quitarlo o añadirlo
+//                 if (playerById.rating >= 90) { //? ----------------- si el rating es superior a 90, lo metemos. si no lo es, no hacemos nada
+//                     try {
+//                         await Team.findByIdAndUpdate(teamById,
+//                             {$push: {ninetyplayers: player}}
+//                             )
+//                     } catch (error) {
+//                         return res.status(404).json({message: "error al añadir jugador en el club de los 90 de Rating ❌", error: error.message})
+//                     }
+//                 }
+//             } else {
+//                 try {
+//                     await Team.findByIdAndUpdate(teamById,
+//                         {$pull: {ninetyplayers: player}}
+//                         )
+//                 } catch (error) {
+//                     return res.status(404).json({message: "error al quitar jugador del club de los 90 de Rating ❌", error: error.message})
+//                 }
+//             }
+//         })
+//         } catch (error) {
+//             return next(setError(500, error.message || "Error general al añadir/quitar Jugador en el club de los 90 de Rating ❌"))
+//     }
+// }
+
+//! --------------- SORT GENERAL DESCENDING----------------
+const sortTeamsbyDescending = async (req, res, next) => {
     try {
-        const {id, players} = req.params; //? ---------------------- obtenemos el id del equipo que queremos cambiar y los id de los jugadores a evaluar para posiblemente meter en ninetyplayers ("12412242253,12535222232,12523266346")
-        const teamById = await Team.findById(id); //? -------------- guardamos en variable el equipo buscado por id
-        const arrayIdPlayers = players.split(",") //? -------------- los id de los jugadores que metemos en el body (4a linea funcion) las metemos en un array y las separamos por comas
-        arrayIdPlayers.map(async (player) => { //? ----------------- recorremos el array que hemos creado lleno de players
-            const playerById = await Player.findById(player) //? --- cogemos el elemento del jugador entero para poder acceder luego a su rating para ver si es superior a 90
-            if (!teamById.players.includes(player)) { //? ---------- miramos si el jugador ya está para quitarlo o añadirlo
-                if (playerById.rating >= 90) { //? ----------------- si el rating es superior a 90, lo metemos. si no lo es, no hacemos nada
-                    try {
-                        await Team.findByIdAndUpdate(teamById,
-                            {$push: {ninetyplayers: player}}
-                            )
-                    } catch (error) {
-                        return res.status(404).json({message: "error al añadir jugador en el club de los 90 de Rating ❌", error: error.message})
-                    }
-                }
-            } else {
-                try {
-                    await Team.findByIdAndUpdate(teamById,
-                        {$pull: {ninetyplayers: player}}
-                        )
-                } catch (error) {
-                    return res.status(404).json({message: "error al quitar jugador del club de los 90 de Rating ❌", error: error.message})
-                }
-            }
-        })
-        } catch (error) {
-            return next(setError(500, error.message || "Error general al añadir/quitar Jugador en el club de los 90 de Rating ❌"))
+        const {stat} = req.params
+        const teamsArray = await Team.find()
+        console.log(teamsArray)
+        switch (stat) {
+            case "ranking":
+            case "points":
+            case "overalltrophies":
+            case "seasontrophies":
+            case "networth":
+                teamsArray.sort((a, b) => {
+                    return b[stat] - a[stat] //? le decimos que ordene de manera descendiente (ascendiente sería a - b)
+                })
+                break;
+            
+            case "name":
+                teamsArray.sort((a, b) => {
+                    a = a[stat].toLowerCase(); //! NO ME FURULA
+                    b = b[stat].toLowerCase();
+                    return a[stat] < b[stat] ? -1 : 1  //? le decimos que ordene ALFABÉTICAMENTE (al revés sería b - a)
+                })
+                break;
+
+            default:
+                return res.status(404).json("La propiedad por la que quiere ordenar no existe/está mal escrita ❌, compruebe el modelo de datos para checkear como se escribe")
+                break;
+        }
+        const arrayResumido = teamsArray.map((team) => ({ //? que nos muestre solo esta información para no tener ese montón de datos, solo lo relevante
+            name: team.name,
+            [stat]: team[stat],
+        }))
+        return res
+        .status(arrayResumido.length > 0 ? 200 : 404)
+        .json(arrayResumido.length > 0 ? arrayResumido : "No se han encontrado equipos en la DB/BackEnd ❌")
+    } catch (error) {
+        return next(setError(500, error.message || "Error general al ordenar Equipos de forma Descendiente ❌"))
     }
 }
 
-//! --------------- FILTER by 90+ PLAYERS ----------------
-const filterTeam90Players = async (req, res, next) => {
-        try {
-            const equipos = await Team.find()
-            const funcion = equipos.map((team) => {
-                const teamPlayers = Player.find({team: team})
-            })
-        } catch (error) {
+//! --------------- SORT GENERAL ASCENDING ----------------
+const sortTeamsbyAscending = async (req, res, next) => {
+    try {
+        const {stat} = req.params
+        const teamsArray = await Team.find()
+        console.log(teamsArray)
+        switch (stat) {
+            case "ranking":
+            case "points":
+            case "overalltrophies":
+            case "seasontrophies":
+            case "networth":
+                teamsArray.sort((a, b) => {
+                    return a[stat] - b[stat] //? le decimos que ordene de manera ASCENDIENTE
+                })
+                break;
             
+            case "name":
+                teamsArray.sort((a, b) => {
+                    a = a[stat].toLowerCase();
+                    b = b[stat].toLowerCase();
+                    return a[stat] > b[stat] ? -1 : 1 //? le decimos que ordene ALFABÉTICAMENTE INVERSO
+                })
+                break;
+
+            default:
+                return res.status(404).json("La propiedad por la que quiere ordenar no existe/está mal escrita ❌, compruebe el modelo de datos para checkear como se escribe")
+                break;
         }
+        const arrayResumido = teamsArray.map((team) => ({ //? que nos muestre solo esta información para no tener ese montón de datos, solo lo relevante
+            name: team.name,
+            [stat]: team[stat],
+        }))
+        return res
+        .status(arrayResumido.length > 0 ? 200 : 404)
+        .json(arrayResumido.length > 0 ? arrayResumido : "No se han encontrado equipos en la DB/BackEnd ❌")
+    } catch (error) {
+        return next(setError(500, error.message || "Error general al ordenar Equipos de forma Ascendiente ❌"))
+    }
 }
 
-
-
+//! --------------- FILTER GENERAL ----------------
+const filterGeneral = async (req, res, next) => {
+    try {
+        let teamsArray
+        const {filter, gt, lt} = req.params; //? en el param ponemos 1o: propiedad a filtrar, 2o: mayor que (Greater Than), 3o: menor que (Lower Than)
+        switch (filter) {
+            case "ranking": 
+            case "points":
+            case "overalltrophies":
+            case "seasontrophies":
+            case "networth":
+                teamsArray = await Team.find({$and: [{[filter]: {$gt: gt}}, {[filter]: {$lt: lt}}]})
+                break;
+        
+            default:
+                return res.status(404).json("La propiedad por la que quiere filtrar no existe/está mal escrita ❌, compruebe el modelo de datos para checkear como se escribe")
+                break;
+        }
+        const arrayResumido = teamsArray.map((team) => ({ //? que nos muestre solo esta información para no tener ese montón de datos, solo la info de la propiedad en la que filtramos
+            name: team.name,
+            [filter]: team[filter],
+        }))
+        return res
+        .status(arrayResumido.length > 0 ? 200 : 404)
+        .json(arrayResumido.length > 0 ? arrayResumido : `No se han encontrado equipos con ${filter} mayor que ${gt} y menor que ${lt} en la DB/BackEnd ❌`)
+    } catch (error) {
+        
+    }
+}
 
 
 module.exports = {
@@ -396,5 +493,7 @@ module.exports = {
     sortTeamsbyPoints,
     sortTeamsbyNetWorth,
     sortTeamsbyLeagueandRanking,
-    add90players
+    sortTeamsbyDescending,
+    sortTeamsbyAscending,
+    filterGeneral,
 }

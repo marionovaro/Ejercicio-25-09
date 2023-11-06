@@ -10,7 +10,10 @@ const {
     sortTeamsbyPoints,
     sortTeamsbyNetWorth,
     sortTeamsbyLeagueandRanking,
-    add90players
+    sortTeamsbyDescending,
+    sortTeamsbyAscending,
+    filterGeneral,
+
 } = require("../controllers/Team.controller");
 
 const TeamRoutes = require("express").Router();
@@ -26,6 +29,9 @@ TeamRoutes.delete("/:id", deleteTeam);
 TeamRoutes.get("/sortbypoints/teams", sortTeamsbyPoints)
 TeamRoutes.get("/sortbynetworth/teams", sortTeamsbyNetWorth)
 TeamRoutes.get("/sortranking/:league", sortTeamsbyLeagueandRanking)
-TeamRoutes.patch("/players90/:id/:players", add90players) //! Redirect
+TeamRoutes.get("/sortdescending/teams/:stat", sortTeamsbyDescending)
+TeamRoutes.get("/sortascending/teams/:stat", sortTeamsbyAscending)
+TeamRoutes.get("/filter/teams/:filter/:gt/:lt", filterGeneral)
+
 
 module.exports = TeamRoutes
