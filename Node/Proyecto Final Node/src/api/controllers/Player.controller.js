@@ -232,7 +232,7 @@ const sortPlayersbyDescending = async (req, res, next) => {
             case "age":
             case "marketvalue":
             case "goals":
-            case "assist":
+            case "assists":
             case "rating":
                 playersArray.sort((a, b) => {
                     return b[stat] - a[stat] //? le decimos que ordene de manera descendiente (ascendiente sería a - b)
@@ -287,7 +287,7 @@ const sortPlayersbyAscending = async (req, res, next) => {
             case "age":
             case "marketvalue":
             case "goals":
-            case "assist":
+            case "assists":
             case "rating":
                 playersArray.sort((a, b) => {
                     return a[stat] - b[stat] //? le decimos que ordene de manera ASCENDIENTE
@@ -328,7 +328,7 @@ const filterGeneralNum = async (req, res, next) => {
             case "age":
             case "marketvalue":
             case "goals":
-            case "assist":
+            case "assists":
             case "rating":
                 playersArray = await Player.find({$and: [{[filter]: {$gt: gt}}, {[filter]: {$lt: lt}}]})
                 break;
