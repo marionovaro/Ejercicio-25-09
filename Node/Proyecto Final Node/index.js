@@ -35,6 +35,9 @@ app.use("/api/v1/teams/", TeamRoutes)
 const UserRoutes = require("./src/api/routes/User.routes");
 app.use("/api/v1/users/", UserRoutes);
 
+const ElevenRoutes = require("./src/api/routes/Eleven.routes");
+app.use("/api/v1/eleven/", ElevenRoutes);
+
 //! 7. --------- ERRORES
 //------- ERR0R: RUTA NO ENCONTRADA
 app.use(".", (req, res, next) =>{

@@ -441,7 +441,7 @@ const filter90Players = async (req, res, next) => {
         const arrayResumido = bestPlayers.map((player) => ({ //? recorro el array de jugadores para que me de la info de cada jugador que yo quiera 
             name: player.name,
             rating: player.rating,
-            team: player.team.map((propiedad) => ({name: propiedad.name})), //! como hacer que esto muestre el nombre en vez del id
+            team: player.team.map((propiedad) => ({name: propiedad.name})), 
             id: player._id,
         }))
         return res
