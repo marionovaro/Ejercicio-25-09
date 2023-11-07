@@ -51,11 +51,15 @@ const create = async (req, res, next) => { //? para crear con id en vez de name,
                     break;
             }
         }
-        const newEleven = new Eleven(elevenTeam) //? ---------------------- instanciamos un nuevo 11 ideal y le INTRODUCIMOS COMO INFO INICIAL LO QUE RECIBIMOS EN EL BODY DE LA REQUEST
-        const saveEleven = await newEleven.save(); //? ------------------ GUARDAMOS EL 11 IDEAL EN LA BASE DE DATOS (DB) O BACKEND
-        return res //? evaluamos si existe saveEleven y por lo tanto se ha guardado bien y mostramos exito o error
-            .status(saveEleven ? 200 : 404)
-            .json(saveEleven ? saveEleven : errors )
+        if (errors.length == 0) { //? ----------------------------------------- solamente cuando no hay ningún error:
+            const newEleven = new Eleven(elevenTeam) //? ---------------------- instanciamos un nuevo 11 ideal y le INTRODUCIMOS COMO INFO INICIAL LO QUE RECIBIMOS EN EL BODY DE LA REQUEST
+            const saveEleven = await newEleven.save(); //? -------------------- GUARDAMOS EL 11 IDEAL EN LA BASE DE DATOS (DB) O BACKEND
+            return res //? ---------------------------------------------------- evaluamos si existe saveEleven y por lo tanto se ha guardado bien y mostramos exito o error
+                .status(saveEleven ? 200 : 404)
+                .json(saveEleven ? saveEleven : "Error en el guardado del 11 ideal ❌" )
+        } else {
+            return res.status(404).json(errors) //? --------------------------- mostramos los errores de posición que hemos almacenado en el recorrido
+        }
 
     } catch (error) { //? --------------------------------------------- si ha habido un error creando el jugador: 
         return next(setError(500, error.message || "Error general al crear tu 11 ideal ❌"))
@@ -72,7 +76,7 @@ const getById = async (req, res, next) => {
             .json(elevenById ? elevenById : "no se ha encontrado un 11 ideal con ese id ❌");
 
     } catch (error) {
-        return res.status(404).json({message: "error en el GET by ID ❌ - catch general", error: error.message})
+        return next(setError(500, error.message || "Error general al buscar 11 ideal a través de ID ❌"))
     }
 };
 
@@ -80,12 +84,13 @@ const getById = async (req, res, next) => {
 const getAll = async (req, res, next) =>  {
     try {
         const allElevens = await Eleven.find() //? ------------- el find() nos devuelve un array con todos los elementos de la colección del BackEnd, es decir, TODOS LOS 11 IDEALES
+        console.log(allElevens)
         return res 
             .status(allElevens.length > 0 ? 200 : 404) //? ---- si hay equipos en la db (el array tiene al menos 1 elemento), 200 o 404
-            .json(allElevens.length > 0 ? allElevens : {message: "No se han encontrado 11 ideales en la DB ❌", error: error.message}); 
+            .json(allElevens.length > 0 ? allElevens : "No se han encontrado 11 ideales en la DB ❌"); 
 
     } catch (error) {
-        return res.status(404).json({message: "error al buscar equipos en la colección ❌ - catch general", error: error.message});
+        return next(setError(500, error.message || "Error general al buscar todos los 11 ideales ❌"))
     }
 };
 
@@ -99,7 +104,7 @@ const getByName = async (req, res, next) => {
             .json(elevenByName.length > 0 ? elevenByName : "no se ha encontrado un 11 ideal con ese nombre ❌");
 
     } catch (error) {
-        return res.status(404).json({message: "error al buscar a través del name ❌ - catch general", error: error.message});
+        return next(setError(500, error.message || "Error general al buscar 11 ideal a través de nombre ❌"))
     }
 };
 

@@ -1,3 +1,4 @@
+const { isAuth } = require("../../middleware/auth.middleware");
 const {
     create,
     getById,
@@ -8,10 +9,10 @@ const {
 
 const ElevenRoutes = require("express").Router();
 
-ElevenRoutes.post("/create", create);
+ElevenRoutes.post("/create", [isAuth], create);
 ElevenRoutes.get("/:id", getById);
 ElevenRoutes.get("/", getAll);
-ElevenRoutes.get("/byName/:name", getByName);
+ElevenRoutes.get("/byname/:name", getByName);
 ElevenRoutes.delete("/delete/:id", deleteEleven);
 
 module.exports = ElevenRoutes
