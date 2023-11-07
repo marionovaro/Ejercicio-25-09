@@ -27,8 +27,7 @@ const create = async (req, res, next) => {
         } //todo ------------------------------------------------------------------
         
         if (savePlayer) { //? si se ha guardado correctamente (savePlayer existe)
-                //  res.status(200).json(savePlayer); //!--------------------------------------------------------------------- NO CAMBIADO !!!!!!!!!!!!!
-                res.redirect(302, `http://localhost:8081/api/v1/teams/players90/${playersTeam}/${id}`, console.log("entreee paa"))
+                 res.status(200).json(savePlayer);
             } else {
                 return res.status(404).json({message: "No se ha podido guardar el jugador en la DB ❌", error: error.message})
             }
