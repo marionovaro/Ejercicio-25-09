@@ -23,7 +23,7 @@ const PlayerSchema = new Schema(
 
         team: [{type: mongoose.Schema.Types.ObjectId, ref: "Team"}],
         likes: [{type: mongoose.Schema.Types.ObjectId, ref: "User"}],
-        selected: [{type: mongoose.Schema.Types.ObjectId, ref: "User"}],
+        selected: [{type: mongoose.Schema.Types.ObjectId, ref: "Eleven"}],
     },
     {
         timestamps: true

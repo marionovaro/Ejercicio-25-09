@@ -6,46 +6,47 @@ const Player = require("../models/Player.model");
 const Team = require("../models/Team.model");
 const User = require("../models/User.model");
 
-//! ---------------- CREATE -----------------
+//! ---------------- CREATE -----------------  // hacer que si el usuario ya tiene un equipo mandar error, haciendo que si ideal eleven. length > 0, error
 const create = async (req, res, next) => { //? para crear con id en vez de name, solo hay que cambiar el String, por ObjectId en el modelo, y aquí en vez de Player.findOne({name: body[propiedad]}) se haría con Player.findById(body[propiedad])
     try {
         await Eleven.syncIndexes() //? --------------------------- ACTUALIZAMOS INDEXES, que son aquellas claves del objeto que son únicas. Lo hacemos para asegurarnos que tenemos la última versión en caso de haber sido modificados los modelos
         //todo ------------ VAMOS A ASEGURARNOS QUE LOS JUGADORES SELECCIONADOS ESTAN EN LA POSICION CORRECTA ----------------
         const body = req.body
         console.log(body)
-        let elevenTeam = {} //? ----------------------------------------- aqui vamos a guardar los jugadores, si cumplen con la condición de las posición
+        const owner = req.user._id
+        let elevenTeam = {name: req.body.name, owner: owner} //? ----------------------------------------- aqui vamos a guardar los jugadores, si cumplen con la condición de las posición
         let errors = [] //? --------------------------------------------- aquí vamos a guardar los errores indicando, en qué jugador falla, si no se cumple la condición de la posición
         let player //? -------------------------------------------------- variable que va cambiando en el recorrido en la que metemos los jugadores y los introducimos en el array elevenTeam
         for (let propiedad in body) {
             switch (propiedad) { //? ------------------------------------ la propiedad es la posición en la que los hemos puesto
                 case "goalkeeper":
                     player = await Player.findOne({name: body[propiedad]})//!.populate(propiedad) no puedo porque propiedad no existe en Player, se tiene que hacer cuando se haga un find o lksea en Eleven 
-                    player.position == "goalkeeper" ? elevenTeam[propiedad] = player.name : errors.push({error: `El jugador en la posición ${propiedad} no está colocado en una posición apta para él`})
+                    player.position == "goalkeeper" ? elevenTeam[propiedad] = player._id : errors.push({error: `El jugador en la posición ${propiedad} no está colocado en una posición apta para él`})
                     break;
                 case "rightback":
                     player = await Player.findOne({name: body[propiedad]})
-                    player.position == "right-back" ? elevenTeam[propiedad] = player.name : errors.push({error: `El jugador en la posición ${propiedad} no está colocado en una posición apta para él`})
+                    player.position == "right-back" ? elevenTeam[propiedad] = player._id : errors.push({error: `El jugador en la posición ${propiedad} no está colocado en una posición apta para él`})
                     break;
                 case "centreback1":
                 case "centreback2":
                     player = await Player.findOne({name: body[propiedad]})
-                    player.position == "centre-back" ? elevenTeam[propiedad] = player.name : errors.push({error: `El jugador en la posición ${propiedad} no está colocado en una posición apta para él`})
+                    player.position == "centre-back" ? elevenTeam[propiedad] = player._id : errors.push({error: `El jugador en la posición ${propiedad} no está colocado en una posición apta para él`})
                     break;
                 case "leftback":
                     player = await Player.findOne({name: body[propiedad]})
-                    player.position == "left-back" ? elevenTeam[propiedad] = player.name : errors.push({error: `El jugador en la posición ${propiedad} no está colocado en una posición apta para él`})
+                    player.position == "left-back" ? elevenTeam[propiedad] = player._id : errors.push({error: `El jugador en la posición ${propiedad} no está colocado en una posición apta para él`})
                     break;
                 case "midfielder1":
                 case "midfielder2":
                 case "midfielder3":
                     player = await Player.findOne({name: body[propiedad]})
-                    player.position == "midfielder" ? elevenTeam[propiedad] = player.name : errors.push({error: `El jugador en la posición ${propiedad} no está colocado en una posición apta para él`})
+                    player.position == "midfielder" ? elevenTeam[propiedad] = player._id : errors.push({error: `El jugador en la posición ${propiedad} no está colocado en una posición apta para él`})
                     break;
                 case "forward1":
                 case "forward2":
                 case "forward3":
                     player = await Player.findOne({name: body[propiedad]})
-                    player.position == "forward" ? elevenTeam[propiedad] = player.name : errors.push({error: `El jugador en la posición ${propiedad} no está colocado en una posición apta para él`}) 
+                    player.position == "forward" ? elevenTeam[propiedad] = player._id : errors.push({error: `El jugador en la posición ${propiedad} no está colocado en una posición apta para él`}) 
                     break;          
                 default:
                     break;
@@ -54,9 +55,20 @@ const create = async (req, res, next) => { //? para crear con id en vez de name,
         if (errors.length == 0) { //? ----------------------------------------- solamente cuando no hay ningún error:
             const newEleven = new Eleven(elevenTeam) //? ---------------------- instanciamos un nuevo 11 ideal y le INTRODUCIMOS COMO INFO INICIAL LO QUE RECIBIMOS EN EL BODY DE LA REQUEST
             const saveEleven = await newEleven.save(); //? -------------------- GUARDAMOS EL 11 IDEAL EN LA BASE DE DATOS (DB) O BACKEND
+            for (let posicion in body) { //todo ----------- RECIPROCIDAD CON PLAYER --------------------
+                if (posicion != "name") { //? --------------------------------- lo hacemos porque name también viene como propiedad en el body pero no es un jugador que cambiar el modelo
+                    player = await Player.findOne({name: body[posicion]})
+                    await Player.findByIdAndUpdate(player.id, //? ------------- 1r param: el id del elemento que vamos a modificar (añadirle a la propiedad selected)
+                    {$push: {selected: saveEleven._id}} //? ------------------- 2o param: le metemos el id del eleven que estamos creando a la propiedad selected del player que hemos puesto en el body
+                )
+                }
+            } //todo ---------------- RECIPROCIDAD CON USER -----------------------
+            await User.findByIdAndUpdate(owner, //? --------- este es el id que hemos encontrado con req.user._id al ppio de la función
+                {$push: {yourteam: saveEleven._id}} //? ----- le metemos el id del eleven a la propiedad yourteam dentro del modelo de USER
+                )
             return res //? ---------------------------------------------------- evaluamos si existe saveEleven y por lo tanto se ha guardado bien y mostramos exito o error
                 .status(saveEleven ? 200 : 404)
-                .json(saveEleven ? saveEleven : "Error en el guardado del 11 ideal ❌" )
+                .json(saveEleven ? await Eleven.findById(saveEleven._id).populate("owner goalkeeper rightback centreback1 centreback2 leftback midfielder1 midfielder2 midfielder3 forward1 forward2 forward3") : "Error en el guardado del 11 ideal ❌" )
         } else {
             return res.status(404).json(errors) //? --------------------------- mostramos los errores de posición que hemos almacenado en el recorrido
         }
@@ -108,6 +120,8 @@ const getByName = async (req, res, next) => {
     }
 };
 
+
+
 //! ---------------- DELETE -----------------
 const deleteEleven = async (req, res, next) => {
     try {
@@ -116,23 +130,23 @@ const deleteEleven = async (req, res, next) => {
 
         if (eleven) { //? si el equipo que queremos eliminar existe (tiene que hacerlo para poder eliminarlo)
 
-            try { //? ----------------------------------------- ELIMINAMOS AL EQUIPO, DEL JUGADOR
-                const test = await Player.updateMany( //? ----- ahora estamos cambiando en el model de Player para poder quitar el equipo que ya no existe
+            try { //? --------------------------------------------- ELIMINAMOS AL ELEVEN, DEL JUGADOR
+                const test = await Player.updateMany( //? --------- ahora estamos cambiando en el model de Player para poder quitar el equipo que ya no existe
                     {selected: id}, //? --------------------------- queremos cambiar lo que sea que haya que cambiar en esta propiedad del model, si se omite se dice que se cambia cualquier conincidencia en todo el modelo. es la condición
-                    {$pull: {selected: id}} //? ------------------- estamos diciendo que quite de la propiedad eleven, el id indicado, es decir el del equipo que se ha eliminado. es la ejecución
+                    {$pull: {selected: id}} //? ------------------- estamos diciendo que quite de la propiedad selected, el id indicado, es decir el del equipo que se ha eliminado. es la ejecución
                 )
             } catch (error) {
                 return res.status(404).json({message: "Error al eliminar el 11 ideal del jugador ❌", error: error.message})
             }
 
-            // try { //? -------------------------------------- ELIMINAMOS AL EQUIPO DEL USER
-            //     const test = await User.updateMany( //? ---- ahora estamos cambiando en el model de User para poder quitar el equipo que ya no existe
-            //         {favTeams: id}, //? -------------------- condición/ubicación del cambio (eliminación)
-            //         {$pull: {favTeams: id}} //? ------------ ejecución
-            //     )
-            // } catch (error) {
-            //     return res.status(404).json({message: "Error al eliminar el equipo del usuario ❌", error: error.message})
-            // }
+            try { //? -------------------------------------- ELIMINAMOS AL ELEVEN DEL USER
+                const test = await User.updateMany( //? ---- ahora estamos cambiando en el model de User para poder quitar el equipo que ya no existe
+                    {yourteam: id}, //? -------------------- condición/ubicación del cambio (eliminación)
+                    {$pull: {yourteam: id}} //? ------------ ejecución
+                )
+            } catch (error) {
+                return res.status(404).json({message: "Error al eliminar el equipo del usuario ❌", error: error.message})
+            }
 
             const findByIdEleven = await Eleven.findById(id); //? hemos encontrado este equipo? no debería existir porque lo hemos eliminado al ppio
             return res.status(findByIdEleven ? 404 : 200).json({ //? si se encuentra hay un error, porque no se ha eliminado
