@@ -48,6 +48,8 @@ const UserSchema = new mongoose.Schema(
 
           favPlayers: [{type: mongoose.Schema.Types.ObjectId, ref: "Player"}],
           favTeams: [{type: mongoose.Schema.Types.ObjectId, ref: "Team"}],
+          favElevens: [{type: mongoose.Schema.Types.ObjectId, ref: "Eleven"}],
+          favComments: [{type: mongoose.Schema.Types.ObjectId, ref: "Comment"}],
           selectedPlayer: [{type: mongoose.Schema.Types.ObjectId, ref: "Player"}],
           followers: [{type: mongoose.Schema.Types.ObjectId, ref: "User"}],
           followed: [{type: mongoose.Schema.Types.ObjectId, ref: "User"}],

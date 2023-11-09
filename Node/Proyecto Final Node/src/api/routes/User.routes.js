@@ -23,6 +23,8 @@ const {
         //! EXTRA
         addFavTeam,
         addFavPlayer,
+        addFavEleven,
+        addFavComment,
         addFollow,
         getFavTeams,
         getFavPlayers
@@ -51,6 +53,8 @@ UserRoutes.delete("/", [isAuth], deleteUser)
 //todo ------- EXTRA
 UserRoutes.patch("/toggleTeam/:idTeam", [isAuth], addFavTeam)
 UserRoutes.patch("/togglePlayer/:idPlayer", [isAuth], addFavPlayer)
+UserRoutes.patch("/toggleEleven/:idEleven", [isAuth], addFavEleven)
+UserRoutes.patch("/toggleComment/:idComment", [isAuth], addFavComment)
 UserRoutes.patch("/toggleFollow/:idUser", [isAuth], addFollow)
 UserRoutes.get("/favTeams/:id", [isAuth], getFavTeams)
 UserRoutes.get("/favPlayers/:id", [isAuth], getFavPlayers)

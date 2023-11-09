@@ -23,6 +23,9 @@ const setError = require("../../helpers/handle-error");
 const Player = require("../models/Player.model");
 const Team = require("../models/Team.model");
 const User = require("../models/User.model");
+const Eleven = require("../models/Eleven.model");
+const Comment = require("../models/Comment.model");
+
 
 //todo -------------------------------------------------------------------------------------------------------
 
@@ -721,6 +724,124 @@ const addFavPlayer = async (req, res, next) => {
     }
 }
 
+//! ------------------- ADD FAV ELEVEN ----------------------
+const addFavEleven = async (req, res, next) => {
+    try {
+        const {idEleven} = req.params; //? --- recibimos el id del comentario que queremos darle like por el url
+        const elementEleven = await Eleven.findById(idEleven)
+        const {_id, favElevens, name} = req.user; //? recibimos el id del user por el req.user porque es autenticado y sabemos quien es por el token
+
+        if (favElevens.includes(idEleven)){ //! ------------- PULL -----------------
+            try {
+                await User.findByIdAndUpdate(_id, { //? actualizamos el usuario. 1r param => condición ()
+                    $pull: {favElevens: idEleven} //? 2o param => ejecución (sacamos id del eleven del user)
+                });
+                try {
+                    await Eleven.findByIdAndUpdate(idEleven, { //? aquí se actualiza el modelo de eleven para sacar al user como like
+                        $pull: {likes: _id}
+                    });
+                    
+                    // todo --------- RESPONSE ------------- //
+                    
+                    return res.status(200).json({
+                        userUpdate: await User.findById(_id),
+                        elevenUpdate: await Eleven.findById(idEleven),
+                        action: `Se ha quitado el 11 ideal ${elementEleven.name} como favorito del usuario ${name}`
+                    })
+                } catch (error) {
+                    return res.status(404).json({error: 'Error al quitar el User, del Eleven ❌', message: error.message});
+                }
+            } catch (error) {
+                return res.status(404).json({message: "Error al quitar el Eleven, del User ❌", error: error.message})
+            }
+        } else { //! ---------- PUSH ----------------
+            try {
+                await User.findByIdAndUpdate(_id, { //? actualizamos el usuario. 1r param => condición ()
+                    $push: {favElevens: idEleven} //? 2o param => ejecución (metemos id de eleven en el user)
+                });
+                try {
+                    await Eleven.findByIdAndUpdate(idEleven, { //? aquí se actualiza el modelo de eleven para meter al user como like
+                        $push: {likes: _id}
+                    });
+                    
+                    // todo --------- RESPONSE ------------- //
+                    
+                    return res.status(200).json({
+                        userUpdate: await User.findById(_id),
+                        elevenUpdate: await Eleven.findById(idEleven),
+                        action: `Se ha añadido el 11 ideal ${elementEleven.name} como favorito del usuario ${name}`
+                    })
+                } catch (error) {
+                    return res.status(404).json({error: 'Error al añadir el User, al Eleven ❌', message: error.message});
+                }
+            } catch (error) {
+                return res.status(404).json({message: "Error al añadir el Eleven, al User ❌", error: error.message})
+            }
+        }
+    } catch (error) {
+        return next(setError(500, error.message || "Error general al hacer toggle de Elevens Favoritos ❤️❌"))
+    }
+}
+
+//! ------------------- ADD FAV COMMENT ----------------------
+const addFavComment = async (req, res, next) => {
+    try {
+        const {idComment} = req.params; //? --- recibimos el id del comentario que queremos darle like por el url
+        const elementComment = await Comment.findById(idComment)
+        const {_id, favComments, name} = req.user; //? recibimos el id del user por el req.user porque es autenticado y sabemos quien es por el token
+
+        if (favComments.includes(idComment)){ //! ------------- PULL -----------------
+            try {
+                await User.findByIdAndUpdate(_id, { //? actualizamos el usuario. 1r param => condición ()
+                    $pull: {favComments: idComment} //? 2o param => ejecución (sacamos id del jugador del user)
+                });
+                try {
+                    await Comment.findByIdAndUpdate(idComment, { //? aquí se actualiza el modelo de comment para sacar al user como like
+                        $pull: {likes: _id}
+                    });
+                    
+                    // todo --------- RESPONSE ------------- //
+                    
+                    return res.status(200).json({
+                        userUpdate: await User.findById(_id),
+                        commentUpdate: await Comment.findById(idComment),
+                        action: `Se ha quitado el comentario "${elementComment.comment}" como favorito del usuario ${name}`
+                    })
+                } catch (error) {
+                    return res.status(404).json({error: 'Error al quitar el User, del Comment ❌', message: error.message});
+                }
+            } catch (error) {
+                return res.status(404).json({message: "Error al quitar el Comment, del User ❌", error: error.message})
+            }
+        } else { //! ---------- PUSH ----------------
+            try {
+                await User.findByIdAndUpdate(_id, { //? actualizamos el usuario. 1r param => condición ()
+                    $push: {favComments: idComment} //? 2o param => ejecución (metemos id de comment en el user)
+                });
+                try {
+                    await Comment.findByIdAndUpdate(idComment, { //? aquí se actualiza el modelo de comment para meter al user como like
+                        $push: {likes: _id}
+                    });
+                    
+                    // todo --------- RESPONSE ------------- //
+                    
+                    return res.status(200).json({
+                        userUpdate: await User.findById(_id),
+                        commentUpdate: await Comment.findById(idComment),
+                        action: `Se ha añadido el comentario "${elementComment.comment}" como favorito del usuario ${name}`
+                    })
+                } catch (error) {
+                    return res.status(404).json({error: 'Error al añadir el User, al Comment ❌', message: error.message});
+                }
+            } catch (error) {
+                return res.status(404).json({message: "Error al añadir el Comment, al User ❌", error: error.message})
+            }
+        }
+    } catch (error) {
+        return next(setError(500, error.message || "Error general al hacer toggle de Comentarios Favoritos ❤️❌"))
+    }
+}
+
 //! ------------------- ADD FOLLOW --------------------
 const addFollow = async (req, res, next) => {
     try {
@@ -834,6 +955,8 @@ module.exports = {
     //! EXTRA
     addFavTeam,
     addFavPlayer,
+    addFavEleven,
+    addFavComment,
     addFollow,
     getFavTeams,
     getFavPlayers

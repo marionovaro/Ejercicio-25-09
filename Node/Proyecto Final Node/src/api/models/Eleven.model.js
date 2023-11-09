@@ -16,7 +16,8 @@ const ElevenSchema = new Schema(
         forward2: {type: mongoose.Schema.Types.String, ref: "Player"},
         forward3: {type: mongoose.Schema.Types.String, ref: "Player"},
 
-        comments: [{type: mongoose.Schema.Types.String, ref: "Player"}],
+        likes: [{type: mongoose.Schema.Types.String, ref: "User"}],
+        comments: [{type: mongoose.Schema.Types.String, ref: "User"}],
     },
     {
         timestamps: true
