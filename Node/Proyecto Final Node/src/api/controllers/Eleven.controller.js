@@ -12,7 +12,6 @@ const create = async (req, res, next) => { //? para crear con id en vez de name,
         await Eleven.syncIndexes() //? --------------------------- ACTUALIZAMOS INDEXES, que son aquellas claves del objeto que son únicas. Lo hacemos para asegurarnos que tenemos la última versión en caso de haber sido modificados los modelos
         //todo ------------ VAMOS A ASEGURARNOS QUE LOS JUGADORES SELECCIONADOS ESTAN EN LA POSICION CORRECTA ----------------
         const body = req.body
-        console.log(body)
         const owner = req.user._id
         let elevenTeam = {name: req.body.name, owner: owner} //? ----------------------------------------- aqui vamos a guardar los jugadores, si cumplen con la condición de las posición
         let errors = [] //? --------------------------------------------- aquí vamos a guardar los errores indicando, en qué jugador falla, si no se cumple la condición de la posición
@@ -21,32 +20,32 @@ const create = async (req, res, next) => { //? para crear con id en vez de name,
             switch (propiedad) { //? ------------------------------------ la propiedad es la posición en la que los hemos puesto
                 case "goalkeeper":
                     player = await Player.findOne({name: body[propiedad]})//!.populate(propiedad) no puedo porque propiedad no existe en Player, se tiene que hacer cuando se haga un find o lksea en Eleven 
-                    player.position == "goalkeeper" ? elevenTeam[propiedad] = player._id : errors.push({error: `El jugador en la posición ${propiedad} no está colocado en una posición apta para él`})
+                    player.position == "goalkeeper" ? elevenTeam[propiedad] = player.name : errors.push({error: `El jugador en la posición ${propiedad} no está colocado en una posición apta para él`})
                     break;
                 case "rightback":
                     player = await Player.findOne({name: body[propiedad]})
-                    player.position == "right-back" ? elevenTeam[propiedad] = player._id : errors.push({error: `El jugador en la posición ${propiedad} no está colocado en una posición apta para él`})
+                    player.position == "right-back" ? elevenTeam[propiedad] = player.name : errors.push({error: `El jugador en la posición ${propiedad} no está colocado en una posición apta para él`})
                     break;
                 case "centreback1":
                 case "centreback2":
                     player = await Player.findOne({name: body[propiedad]})
-                    player.position == "centre-back" ? elevenTeam[propiedad] = player._id : errors.push({error: `El jugador en la posición ${propiedad} no está colocado en una posición apta para él`})
+                    player.position == "centre-back" ? elevenTeam[propiedad] = player.name : errors.push({error: `El jugador en la posición ${propiedad} no está colocado en una posición apta para él`})
                     break;
                 case "leftback":
                     player = await Player.findOne({name: body[propiedad]})
-                    player.position == "left-back" ? elevenTeam[propiedad] = player._id : errors.push({error: `El jugador en la posición ${propiedad} no está colocado en una posición apta para él`})
+                    player.position == "left-back" ? elevenTeam[propiedad] = player.name : errors.push({error: `El jugador en la posición ${propiedad} no está colocado en una posición apta para él`})
                     break;
                 case "midfielder1":
                 case "midfielder2":
                 case "midfielder3":
                     player = await Player.findOne({name: body[propiedad]})
-                    player.position == "midfielder" ? elevenTeam[propiedad] = player._id : errors.push({error: `El jugador en la posición ${propiedad} no está colocado en una posición apta para él`})
+                    player.position == "midfielder" ? elevenTeam[propiedad] = player.name : errors.push({error: `El jugador en la posición ${propiedad} no está colocado en una posición apta para él`})
                     break;
                 case "forward1":
                 case "forward2":
                 case "forward3":
                     player = await Player.findOne({name: body[propiedad]})
-                    player.position == "forward" ? elevenTeam[propiedad] = player._id : errors.push({error: `El jugador en la posición ${propiedad} no está colocado en una posición apta para él`}) 
+                    player.position == "forward" ? elevenTeam[propiedad] = player.name : errors.push({error: `El jugador en la posición ${propiedad} no está colocado en una posición apta para él`}) 
                     break;          
                 default:
                     break;
@@ -68,7 +67,7 @@ const create = async (req, res, next) => { //? para crear con id en vez de name,
                 )
             return res //? ---------------------------------------------------- evaluamos si existe saveEleven y por lo tanto se ha guardado bien y mostramos exito o error
                 .status(saveEleven ? 200 : 404)
-                .json(saveEleven ? await Eleven.findById(saveEleven._id).populate("owner goalkeeper rightback centreback1 centreback2 leftback midfielder1 midfielder2 midfielder3 forward1 forward2 forward3") : "Error en el guardado del 11 ideal ❌" )
+                .json(saveEleven ? await Eleven.findById(saveEleven._id)/*.populate("owner goalkeeper rightback centreback1 centreback2 leftback midfielder1 midfielder2 midfielder3 forward1 forward2 forward3")*/ : "Error en el guardado del 11 ideal ❌" )
         } else {
             return res.status(404).json(errors) //? --------------------------- mostramos los errores de posición que hemos almacenado en el recorrido
         }
@@ -120,7 +119,79 @@ const getByName = async (req, res, next) => {
     }
 };
 
+//! --------------- UPDATE ----------------
+const update = async (req, res, next) => {
+    await Eleven.syncIndexes(); //? .------------------- busca las actualizaciones, por si se ha modficado el modelo player
+    try {
+        const {id} = req.params; //? ------------------- en esta linea y la siguiente hacemos lo mismo que en getById
+        const elevenById = await Eleven.findById(id);
+        const body = req.body
+        const checkPosition = async (clave, posicion) => { //? ----- funcion que usamos para checkear que el nuevo jugador está en la posición correcta
+            const player = await Player.findOne({name: body[clave]})
+            if (player.positon == posicion) {
+                return true
+            } else {return false}
+        }
+        if (elevenById) {
+            const customBody = {
+                _id: elevenById._id, //? ---------- ponemos _.id porque así lo pone en insomnia
+                name: body?.name ? body.name : elevenById.name,
+                goalkeeper: body?.goalkeeper && checkPosition("goalkeeper", "goalkeeper") ? body.goalkeeper : elevenById.goalkeeper,
+                rightback: body?.rightback && checkPosition("rightback", "right-back") ? body.rightback : elevenById.rightback,
+                centreback1: body?.centreback1 && checkPosition("centreback1", "centre-back") ? body.centreback1 : elevenById.centreback1,
+                centreback2: body?.centreback2 && checkPosition("centreback2", "centre-back") ? body.centreback2 : elevenById.centreback2,
+                leftback: body?.leftback && checkPosition("leftback", "left-back") ? body.leftback : elevenById.leftback,
+                midfielder1: body?.midfielder1 && checkPosition("midfielder1", "midfielder") ? body.midfielder1 : elevenById.midfielder1,
+                midfielder2: body?.midfielder2 && checkPosition("midfielder2", "midfielder") ? body.midfielder2 : elevenById.midfielder2,
+                midfielder3: body?.midfielder3 && checkPosition("midfielder3", "midfielder") ? body.midfielder3 : elevenById.midfielder3,
+                forward1: body?.forward1 && checkPosition("forward1", "forward") ? body.forward1 : elevenById.forward1,
+                forward2: body?.forward2 && checkPosition("forward2", "forward") ? body.forward2 : elevenById.forward2,
+                forward3: body?.forward3 && checkPosition("forward3", "forward") ? body.forward3 : elevenById.forward3,
+            };
 
+            try {
+                await Eleven.findByIdAndUpdate(id, customBody); //? cambiamos el body con lo que hemos puesto en customBody en el elemento que encontremos con el id
+    //!           -------------------
+    //!           | RUNTIME TESTING |
+    //!           -------------------
+
+                const elevenByIdUpdated = await Eleven.findById(id) //? -------- buscamos el elemento actualizado a través del id
+                const elementUpdate = Object.keys(req.body); //? ----------- buscamos los elementos de la request para saber qué se tiene que actualizar
+                let test = []; //? ----------------------------------------- objeto vacío donde meter los tests. estará compuesta de las claves de los elementos y los valores seran true/false segun haya ido bien o mal
+                let acc = 0
+                
+                elementUpdate.forEach((key) => { //? ----------------------------- recorremos las claves de lo que se quiere actualizar
+                    console.log(elevenByIdUpdated[key])
+                    console.log(body[key])
+                    if (req.body[key] === elevenByIdUpdated[key]) { //? ------------ si el valor de la clave en la request (el valor actualizado que hemos pedido meter) es el mismo que el que hay ahora en el elemento ---> está bien
+                        test.push({[key] : true}); //? ------------------------------------ está bien hecho por lo tanto en el test con la clave comprobada ponemos true --> test aprobado hehe
+                    } else {
+                        test.push({[key] : false}); //? ----------------------------------- algo ha fallado y por lo tanto el test está suspendido (false)
+                        acc++ //? ------------------------------------------------ por cada fallo que tenemos sumamos uno para el siguiente paso: informar de errores
+                    }
+                });
+
+                if (acc > 0) { //? --------------------- si acc 1 o más, es que ha habido uno o más errores, y por lo tanto hay que notificarlo
+                    return res.status(404).json({
+                        dataTest: test, //? ------------ por aquí podremos examinar los errores viendo en qué claves se han producido
+                        update: false
+                    });
+                } else {
+                    return res.status(200).json({
+                        dataTest: test,
+                        update: true
+                    })
+                }
+            } catch (error) {
+                return next(setError(500, error.message || "Error al guardar tu 11 ideal ❌"))
+            }
+        } else {
+            return res.status(404).json("este equipo no existe ❌")
+        }
+    } catch (error) {
+        return next(setError(500, error.message || "Error al actualizar los datos de tu 11 ideal ❌"))
+    }
+};
 
 //! ---------------- DELETE -----------------
 const deleteEleven = async (req, res, next) => {
@@ -166,5 +237,6 @@ module.exports = {
     getById,
     getAll,
     getByName,
+    update,
     deleteEleven
 }

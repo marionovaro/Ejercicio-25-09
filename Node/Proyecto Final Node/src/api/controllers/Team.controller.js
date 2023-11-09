@@ -206,7 +206,7 @@ const update = async (req, res, next) => {
                         update: false
                     });
                 } else {
-                    return res.status(404).json({
+                    return res.status(200).json({
                         dataTest: test,
                         update: true
                     })
