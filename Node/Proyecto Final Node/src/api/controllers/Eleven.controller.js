@@ -1,6 +1,4 @@
 const setError = require("../../helpers/handle-error");
-const { deleteImgCloudinary } = require("../../middleware/files.middleware");
-const { enumPositionOk, enumPreferredFootOk } = require("../../utils/enumOk");
 const Eleven = require("../models/Eleven.model");
 const Player = require("../models/Player.model");
 const Team = require("../models/Team.model");

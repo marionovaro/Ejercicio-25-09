@@ -5,16 +5,16 @@ const {
     getAll,
     getByName,
     update,
-    deleteEleven,
+    deleteComment,
 } = require("../controllers/Comment.controller");
 
 const CommentRoutes = require("express").Router();
 
-// CommentRoutes.post("/create", [isAuth], create);
-// CommentRoutes.get("/:id", getById);
-// CommentRoutes.get("/", getAll);
+CommentRoutes.post("/create/:location", [isAuth], create);
+CommentRoutes.get("/getbyid/:id", getById);
+CommentRoutes.get("/getall/:location", getAll);
 // CommentRoutes.get("/byname/:name", getByName);
 // CommentRoutes.patch("/:id", update);
-// CommentRoutes.delete("/delete/:id", deleteEleven);
+CommentRoutes.delete("/delete/:id", deleteComment);
 
 module.exports = CommentRoutes
