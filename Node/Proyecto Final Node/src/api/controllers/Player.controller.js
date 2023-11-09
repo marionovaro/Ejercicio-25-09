@@ -1,6 +1,7 @@
 const setError = require("../../helpers/handle-error");
 const { deleteImgCloudinary } = require("../../middleware/files.middleware");
 const { enumPositionOk, enumPreferredFootOk } = require("../../utils/enumOk");
+const Eleven = require("../models/Eleven.model");
 const Player = require("../models/Player.model");
 const Team = require("../models/Team.model");
 const User = require("../models/User.model");
@@ -195,14 +196,22 @@ const deletePlayer = async (req, res, next) => {
                 return res.status(404).json({message: "Error al eliminar el jugador del equipo ❌", error: error.message})
             }
 
-            // try { //? -------------------------------------- ELIMINAMOS AL JUGADOR DEL USER
-            //     const test = await User.updateMany( //? ---- ahora estamos cambiando en el model de User para poder quitar el jugador que ya no existe
-            //         {favPlayers: id}, //? ------------------ condición/ubicación del cambio (eliminación)
-            //         {$pull: {favPlayers: id}} //? ---------- ejecución
-            //     )
-            // } catch (error) {
-            //     return res.status(404).json({message: "Error al eliminar el jugador del usuario ❌", error: error.message})
-            // }
+            try { //? -------------------------------------- ELIMINAMOS AL JUGADOR DEL USER
+                const test = await User.updateMany( //? ---- ahora estamos cambiando en el model de User para poder quitar el jugador que ya no existe
+                    {favPlayers: id}, //? ------------------ condición/ubicación del cambio (eliminación)
+                    {$pull: {favPlayers: id}} //? ---------- ejecución
+                )
+            } catch (error) {
+                return res.status(404).json({message: "Error al eliminar el jugador del usuario ❌", error: error.message})
+            }
+
+            try { //? ---------------------------------------- ELIMINAMOS AL JUGADOR DEL ELEVEN
+                const test = await Eleven.updateMany( //? ---- ahora estamos cambiando en el model de Eleven para poder quitar el jugador que ya no existe
+                    {$pull: id} //? -------------------------- ejecución
+                )
+            } catch (error) {
+                return res.status(404).json({message: "Error al eliminar el jugador del eleven ❌", error: error.message})
+            }
 
             const findByIdPlayer = await Player.findById(id); //? hemos encontrado este jugador? no debería existir porque lo hemos eliminado al ppio
             return res.status(findByIdPlayer ? 404 : 200).json({ //? si se encuentra hay un error, porque no se ha eliminado

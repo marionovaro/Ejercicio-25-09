@@ -239,14 +239,14 @@ const deleteTeam = async (req, res, next) => {
                 return res.status(404).json({message: "Error al eliminar el equipo del jugador ❌", error: error.message})
             }
 
-            // try { //? -------------------------------------- ELIMINAMOS AL EQUIPO DEL USER
-            //     const test = await User.updateMany( //? ---- ahora estamos cambiando en el model de User para poder quitar el equipo que ya no existe
-            //         {favTeams: id}, //? -------------------- condición/ubicación del cambio (eliminación)
-            //         {$pull: {favTeams: id}} //? ------------ ejecución
-            //     )
-            // } catch (error) {
-            //     return res.status(404).json({message: "Error al eliminar el equipo del usuario ❌", error: error.message})
-            // }
+            try { //? -------------------------------------- ELIMINAMOS AL EQUIPO DEL USER
+                const test = await User.updateMany( //? ---- ahora estamos cambiando en el model de User para poder quitar el equipo que ya no existe
+                    {favTeams: id}, //? -------------------- condición/ubicación del cambio (eliminación)
+                    {$pull: {favTeams: id}} //? ------------ ejecución
+                )
+            } catch (error) {
+                return res.status(404).json({message: "Error al eliminar el equipo del usuario ❌", error: error.message})
+            }
 
             const findByIdTeam = await Team.findById(id); //? hemos encontrado este equipo? no debería existir porque lo hemos eliminado al ppio
             return res.status(findByIdTeam ? 404 : 200).json({ //? si se encuentra hay un error, porque no se ha eliminado

@@ -1,4 +1,5 @@
 const setError = require("../../helpers/handle-error");
+const Comment = require("../models/Comment.model");
 const Eleven = require("../models/Eleven.model");
 const Player = require("../models/Player.model");
 const Team = require("../models/Team.model");
@@ -205,7 +206,7 @@ const deleteEleven = async (req, res, next) => {
                     {$pull: {selected: id}} //? ------------------- estamos diciendo que quite de la propiedad selected, el id indicado, es decir el del equipo que se ha eliminado. es la ejecución
                 )
             } catch (error) {
-                return res.status(404).json({message: "Error al eliminar el 11 ideal del jugador ❌", error: error.message})
+                return next(setError(500, error.message || "Error al eliminar el eleven del jugador ❌"))
             }
 
             try { //? -------------------------------------- ELIMINAMOS AL ELEVEN DEL USER
@@ -214,7 +215,30 @@ const deleteEleven = async (req, res, next) => {
                     {$pull: {yourteam: id}} //? ------------ ejecución
                 )
             } catch (error) {
-                return res.status(404).json({message: "Error al eliminar el equipo del usuario ❌", error: error.message})
+                return next(setError(500, error.message || "Error al eliminar el eleven del user ❌"))
+            }
+
+            try { //? -------------------------------------- ELIMINAMOS LOS COMMENTS DEL ELEVEN - repetimos lo que hacemos en el delteComment, porque lo estamos eliminando
+                const arrayComments = await Comment.find({location: id})
+                let errors = []
+                arrayComments.forEach(async (comment) => { //? --------------------------- hacemos forEach para recorrer el array de comentarios que hemos encontrado en el eleven a borrar
+                    const commentById = await Comment.findByIdAndDelete(comment) //? ----- cogemos el id de cada comentario con param comment y lo borramos
+                        try { //? ----------------------------------------- ELIMINAMOS AL FAVCOMMENT DEL USER
+                            const test = await User.updateMany( //? ------- ahora estamos cambiando en el model de User para poder quitar el favcomment que ya no existe
+                                {favComments: id}, //? -------------------- condición/ubicación del cambio (eliminación)
+                                {$pull: {favComments: id}} //? ------------ ejecución
+                            )
+                        } catch (error) {
+                            return next(setError(500, error.message || "Error al eliminar el comentario del user - DELETE ELEVEN❌"))
+                        }
+                     const checkCommentExist = await Comment.findById(comment) //? --------- miramos si el comment aun existe (no debería)
+                     checkCommentExist ? errors.push(comment) : null //? ------------------- si existe pusheamos el id(comment) al array de errores
+                })
+                if (errors.length > 0) { //? ----------------------------------------------- si el array tiene 1 o mas errores, lo mostramos, si no es así, seguimos con el código
+                    return res.status(404).json(errors)
+                }
+            } catch (error) {
+                return next(setError(500, error.message || "Error al eliminar los comments del eleven ❌"))
             }
 
             const findByIdEleven = await Eleven.findById(id); //? hemos encontrado este equipo? no debería existir porque lo hemos eliminado al ppio

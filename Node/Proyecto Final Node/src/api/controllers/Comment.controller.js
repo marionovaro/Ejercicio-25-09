@@ -68,23 +68,23 @@ const deleteComment = async (req, res, next) => {
 
         if (comment) { //? si el equipo que queremos eliminar existe (tiene que hacerlo para poder eliminarlo)
 
-            // try { //? --------------------------------------------- ELIMINAMOS AL ELEVEN, DEL JUGADOR
-            //     const test = await Player.updateMany( //? --------- ahora estamos cambiando en el model de Player para poder quitar el equipo que ya no existe
-            //         {selected: id}, //? --------------------------- queremos cambiar lo que sea que haya que cambiar en esta propiedad del model, si se omite se dice que se cambia cualquier conincidencia en todo el modelo. es la condición
-            //         {$pull: {selected: id}} //? ------------------- estamos diciendo que quite de la propiedad selected, el id indicado, es decir el del equipo que se ha eliminado. es la ejecución
-            //     )
-            // } catch (error) {
-            //     return res.status(404).json({message: "Error al eliminar el 11 ideal del jugador ❌", error: error.message})
-            // }
+            try { //? --------------------------------------------- ELIMINAMOS AL COMMENT, DEL ELEVEN
+                const test = await Eleven.updateMany( //? --------- ahora estamos cambiando en el model de Eleven para poder quitar el equipo que ya no existe
+                    {comments: id}, //? --------------------------- queremos cambiar lo que sea que haya que cambiar en esta propiedad del model, si se omite se dice que se cambia cualquier conincidencia en todo el modelo. es la condición
+                    {$pull: {comments: id}} //? ------------------- estamos diciendo que quite de la propiedad comments, el id indicado, es decir el del equipo que se ha eliminado. es la ejecución
+                )
+            } catch (error) {
+                return next(setError(500, error.message || "Error al eliminar el comentario del eleven ❌"))
+            }
 
-            // try { //? -------------------------------------- ELIMINAMOS AL ELEVEN DEL USER
-            //     const test = await User.updateMany( //? ---- ahora estamos cambiando en el model de User para poder quitar el equipo que ya no existe
-            //         {yourteam: id}, //? -------------------- condición/ubicación del cambio (eliminación)
-            //         {$pull: {yourteam: id}} //? ------------ ejecución
-            //     )
-            // } catch (error) {
-            //     return res.status(404).json({message: "Error al eliminar el equipo del usuario ❌", error: error.message})
-            // }
+            try { //? ----------------------------------------- ELIMINAMOS AL FAVCOMMENT DEL USER
+                const test = await User.updateMany( //? ------- ahora estamos cambiando en el model de User para poder quitar el favcomment que ya no existe
+                    {favComments: id}, //? -------------------- condición/ubicación del cambio (eliminación)
+                    {$pull: {favComments: id}} //? ------------ ejecución
+                )
+            } catch (error) {
+                return next(setError(500, error.message || "Error al eliminar el comentario del user ❌"))
+            }
 
             const findByIdComment = await Comment.findById(id); //? hemos encontrado este equipo? no debería existir porque lo hemos eliminado al ppio
             return res.status(findByIdComment ? 404 : 200).json({ //? si se encuentra hay un error, porque no se ha eliminado

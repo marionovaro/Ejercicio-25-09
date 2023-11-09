@@ -570,35 +570,61 @@ const update = async (req, res, next) => {
     }
 }
 
-//! ------------------- DELETE USER ----------------------------
+//! --------------- DELETE ----------------
 const deleteUser = async (req, res, next) => {
     try {
-        // const {_id, image} = req.user; //?--------- el destructuring no lo hacemos por la explicación que pongo mas adelante
-        await User.findByIdAndDelete(req.user?.id) //? bucamos el user a través del id y lo eliminamos
-        deleteImgCloudinary(req.user?.image); //?----- eliminamos la imagen tmb
-        try {
-            await Team.updateMany(
-                {likes: req.user?._id},
-                {$pull: {likes: req.user?._id}}
-            );
-            try {
-                await Player.updateMany(
-                    {likes: req.user?._id},
-                    {$pull: {likes: req.user?._id}}
-                )
-                const existUser = await User.findById(req.user?._id); //? le hemos puesto el req.user?._id en vez de solamente _id para que cuando intentemos borrar un elemento que no existe no rompa
-                return res.status(existUser ? 404 : 200).json({deleteTest: existUser ? false : true}) //? ponemos con ternarios los errores o exitos
+        const {id} = req.params;
+        const user = await User.findByIdAndDelete(id); //? buscamos el user y lo eliminamos
 
+        if (user) { //? si el user que queremos eliminar existe (tiene que hacerlo para poder eliminarlo)
+
+            try { //? --------------------------------------- ELIMINAMOS AL USER DEL EQUIPO
+                const test = await Team.updateMany( //? ----- ahora estamos cambiando en el model de Team para poder quitar el user que ya no existe
+                    {likes: id}, //? ------------------------ queremos cambiar lo que sea que haya que cambiar en esta propiedad del model, si se omite se dice que se cambia cualquier conincidencia en todo el modelo. es la condición
+                    {$pull: {likes: id}} //? ---------------- estamos diciendo que quite de la propiedad likes, el id indicado, es decir el del user que se ha eliminado. es la ejecución
+                )
             } catch (error) {
-                return res.status(404).json({message: "Error al eliminar User, de Player ❌", error: error.message})
+                return next(setError(500, error.message || "Error al eliminar el user (like) del equipo ❌"))
             }
-        } catch (error) {
-            return res.status(404).json({message: "Error al eliminar User, de Team ❌", error: error.message})
+
+            try { //? -------------------------------------- ELIMINAMOS AL USER (follow) DEL USER
+                const test = await User.updateMany( //? ---- ahora estamos cambiando en el model de User para poder quitar el user que ha dao follow que ya no existe
+                    {followers: id}, //? ------------------- condición/ubicación del cambio (eliminación)
+                    {$pull: {followers: id}} //? ----------- ejecución
+                )
+            } catch (error) {
+                return next(setError(500, error.message || "Error al eliminar el user (follow) del user ❌"))
+            }
+
+            try { //? ---------------------------------------- ELIMINAMOS AL JUGADOR DEL ELEVEN
+                const test = await Eleven.updateMany( //? ---- ahora estamos cambiando en el model de Eleven para poder quitar el jugador que ya no existe de los likes
+                    {likes: id},
+                    {$pull: {likes: id}}
+                )
+            } catch (error) {
+                return next(setError(500, error.message || "Error al eliminar el user (like) del eleven ❌"))
+            }
+
+            try { //? ------------------------------------------ ELIMINAMOS AL USER DEL COMMENT
+                const test = await Comment.updateMany( //? ----- ahora estamos cambiando en el model de comment para poder quitar el user que ya no existe
+                    {likes: id}, //? --------------------------- queremos cambiar lo que sea que haya que cambiar en esta propiedad del model, si se omite se dice que se cambia cualquier conincidencia en todo el modelo. es la condición
+                    {$pull: {likes: id}} //? ------------------- estamos diciendo que quite de la propiedad likes, el id indicado, es decir el del user que se ha eliminado. es la ejecución
+                )
+            } catch (error) {
+                return next(setError(500, error.message || "Error al eliminar el user (like) del comment ❌"))
+            }
+
+            const findByIdUser = await User.findById(id); //? hemos encontrado este jugador? no debería existir porque lo hemos eliminado al ppio
+            return res.status(findByIdUser ? 404 : 200).json({ //? si se encuentra hay un error, porque no se ha eliminado
+                deleteTest: findByIdUser ? false : true, //? si existe, el test ha dado fallo y si no existe ha aprobado el test
+            });
+        } else {
+            return res.status(404).json("este user no existe ❌"); //? si no existe el user antes de eliminarlo hay que dar error porque el jugador seleccionado para borrar no existia en un primer momento
         }
     } catch (error) {
-        return next(setError(500, error.message || "Error general en el catch del DELETE ❌"))
+        return next(setError(500, error.message || "Error general al eliminar el user ❌"))
     }
-}
+};
 
 // todo -----------------------------------------------------
 // todo -------------- EXTRA CONTROLLERS --------------------
