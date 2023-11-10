@@ -1,11 +1,11 @@
 const { isAuth } = require("../../middleware/auth.middleware");
 const {
-    create,
-    getById,
-    getAll,
-    getByName,
-    update,
-    deleteEleven,
+  create,
+  getById,
+  getAll,
+  getByName,
+  update,
+  deleteEleven,
 } = require("../controllers/Eleven.controller");
 
 const ElevenRoutes = require("express").Router();
@@ -17,4 +17,4 @@ ElevenRoutes.get("/byname/:name", getByName);
 ElevenRoutes.patch("/:id", update);
 ElevenRoutes.delete("/delete/:id", deleteEleven);
 
-module.exports = ElevenRoutes
+module.exports = ElevenRoutes;
