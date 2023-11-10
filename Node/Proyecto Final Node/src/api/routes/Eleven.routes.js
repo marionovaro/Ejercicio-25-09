@@ -1,4 +1,4 @@
-const { isAuth } = require("../../middleware/auth.middleware");
+const { isAuth, isOwner } = require("../../middleware/auth.middleware");
 const {
   create,
   getById,
@@ -14,7 +14,7 @@ ElevenRoutes.post("/create", [isAuth], create);
 ElevenRoutes.get("/:id", getById);
 ElevenRoutes.get("/", getAll);
 ElevenRoutes.get("/byname/:name", getByName);
-ElevenRoutes.patch("/:id", update);
-ElevenRoutes.delete("/delete/:id", deleteEleven);
+ElevenRoutes.patch("/:id", [isOwner], update);
+ElevenRoutes.delete("/delete/:id", [isOwner], deleteEleven);
 
 module.exports = ElevenRoutes;

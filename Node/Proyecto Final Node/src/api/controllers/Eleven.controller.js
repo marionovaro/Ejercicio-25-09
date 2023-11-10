@@ -128,7 +128,9 @@ const create = async (req, res, next) => {
 const getById = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const elevenById = await Eleven.findById(id); //? cogemos el elemento (eleven) identificandola a través del id, que es único
+    const elevenById = await Eleven.findById(id).populate(
+      "owner goalkeeper rightback centreback1 centreback2 leftback midfielder1 midfielder2 midfielder3 forward1 forward2 forward3",
+    ); //? cogemos el elemento (eleven) identificandola a través del id, que es único
     return res
       .status(elevenById ? 200 : 404)
       .json(
@@ -149,7 +151,9 @@ const getById = async (req, res, next) => {
 //! --------------- GET ALL ----------------
 const getAll = async (req, res, next) => {
   try {
-    const allElevens = await Eleven.find(); //? ------------- el find() nos devuelve un array con todos los elementos de la colección del BackEnd, es decir, TODOS LOS 11 IDEALES
+    const allElevens = await Eleven.find().populate(
+      "owner goalkeeper rightback centreback1 centreback2 leftback midfielder1 midfielder2 midfielder3 forward1 forward2 forward3",
+    ); //? ------------- el find() nos devuelve un array con todos los elementos de la colección del BackEnd, es decir, TODOS LOS 11 IDEALES
     console.log(allElevens);
     return res
       .status(allElevens.length > 0 ? 200 : 404) //? ---- si hay equipos en la db (el array tiene al menos 1 elemento), 200 o 404
@@ -172,7 +176,9 @@ const getAll = async (req, res, next) => {
 const getByName = async (req, res, next) => {
   try {
     const { name } = req.params;
-    const elevenByName = await Eleven.find({ name });
+    const elevenByName = await Eleven.find({ name }).populate(
+      "owner goalkeeper rightback centreback1 centreback2 leftback midfielder1 midfielder2 midfielder3 forward1 forward2 forward3",
+    );
     return res
       .status(elevenByName.length > 0 ? 200 : 404) //? igual que en get all, miramos si el array con ese nombre es mayor que 0 (solo debería de haber 1) y mostramos 200 o 404
       .json(
@@ -201,7 +207,8 @@ const update = async (req, res, next) => {
     const checkPosition = async (clave, posicion) => {
       //? ----- funcion que usamos para checkear que el nuevo jugador está en la posición correcta
       const player = await Player.findById(body[clave]);
-      if (player.positon == posicion) {
+      if (player.position == posicion) {
+        console.log("true");
         return true;
       } else {
         return false;
@@ -290,9 +297,9 @@ const update = async (req, res, next) => {
 
         elementUpdate.forEach((key) => {
           //? ----------------------------- recorremos las claves de lo que se quiere actualizar
-          // console.log(elevenByIdUpdated[key])
-          // console.log(body[key])
-          if (req.body[key] === elevenByIdUpdated[key]) {
+          console.log(elevenByIdUpdated[key]);
+          console.log(body[key]);
+          if (req.body[key] == elevenByIdUpdated[key]) {
             //? ------------ si el valor de la clave en la request (el valor actualizado que hemos pedido meter) es el mismo que el que hay ahora en el elemento ---> está bien
             test.push({ [key]: true }); //? ------------------------------------ está bien hecho por lo tanto en el test con la clave comprobada ponemos true --> test aprobado hehe
           } else {

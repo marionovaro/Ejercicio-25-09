@@ -139,7 +139,7 @@ const getById = async (req, res, next) => {
   // console.log("entro")
   try {
     const { id } = req.params;
-    const teamById = await Team.findById(id); //? cogemos el elemento (equipo) identificandola a través del id, que es único
+    const teamById = await Team.findById(id).populate("players likes"); //? cogemos el elemento (equipo) identificandola a través del id, que es único
     return res
       .status(teamById ? 200 : 404)
       .json(
@@ -153,7 +153,7 @@ const getById = async (req, res, next) => {
 //! --------------- GET ALL ----------------
 const getAll = async (req, res, next) => {
   try {
-    const allTeams = await Team.find(); //? ------------- el find() nos devuelve un array con todos los elementos de la colección del BackEnd, es decir, TODOS LOS EQUIPOS
+    const allTeams = await Team.find().populate("players likes"); //? ------------- el find() nos devuelve un array con todos los elementos de la colección del BackEnd, es decir, TODOS LOS EQUIPOS
     return res
       .status(allTeams.length > 0 ? 200 : 404) //? ---- si hay equipos en la db (el array tiene al menos 1 elemento), 200 o 404
       .json(
@@ -170,7 +170,7 @@ const getAll = async (req, res, next) => {
 const getByName = async (req, res, next) => {
   try {
     const { name } = req.params;
-    const teamByName = await Team.find({ name });
+    const teamByName = await Team.find({ name }).populate("players likes");
     return res
       .status(teamByName.length > 0 ? 200 : 404) //? igual que en get all, miramos si el array con ese nombre es mayor que 0 (solo debería de haber 1) y mostramos 200 o 404
       .json(
@@ -229,7 +229,8 @@ const update = async (req, res, next) => {
         //!           | RUNTIME TESTING |
         //!           -------------------
 
-        const teamByIdUpdated = await Team.findById(id); //? -------- buscamos el elemento actualizado a través del id
+        const teamByIdUpdated =
+          await Team.findById(id).populate("players likes"); //? -------- buscamos el elemento actualizado a través del id
         const elementUpdate = Object.keys(req.body); //? ----------- buscamos los elementos de la request para saber qué se tiene que actualizar
         let test = []; //? ----------------------------------------- objeto vacío donde meter los tests. estará compuesta de las claves de los elementos y los valores seran true/false segun haya ido bien o mal
 
@@ -350,7 +351,7 @@ const deleteTeam = async (req, res, next) => {
 const sortTeamsbyDescending = async (req, res, next) => {
   try {
     const { stat } = req.params;
-    const teamsArray = await Team.find();
+    const teamsArray = await Team.find().populate("players likes");
     console.log(teamsArray);
     switch (stat) {
       case "ranking":
@@ -404,7 +405,7 @@ const sortTeamsbyDescending = async (req, res, next) => {
 const sortTeamsbyAscending = async (req, res, next) => {
   try {
     const { stat } = req.params;
-    const teamsArray = await Team.find();
+    const teamsArray = await Team.find().populate("players likes");
     console.log(teamsArray);
     switch (stat) {
       case "ranking":
@@ -467,7 +468,7 @@ const filterGeneralNum = async (req, res, next) => {
       case "networth":
         teamsArray = await Team.find({
           $and: [{ [filter]: { $gt: gt } }, { [filter]: { $lt: lt } }],
-        });
+        }).populate("players likes");
         break;
 
       default:
@@ -508,7 +509,7 @@ const filterAndSort = async (req, res, next) => {
       case "networth":
         teamsArray = await Team.find({
           $and: [{ [filter]: { $gt: gt } }, { [filter]: { $lt: lt } }],
-        });
+        }).populate("players likes");
         break;
 
       default:

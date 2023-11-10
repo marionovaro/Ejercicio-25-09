@@ -32,7 +32,9 @@ const create = async (req, res, next) => {
 
     if (savePlayer) {
       //? si se ha guardado correctamente (savePlayer existe)
-      res.status(200).json(await Player.findById(id).populate("team")); //? ---- podriamos poner que devuelva savePlayer pero he puesto el findbyid para popular el team
+      res
+        .status(200)
+        .json(await Player.findById(id).populate("team likes selected")); //? ---- podriamos poner que devuelva savePlayer pero he puesto el findbyid para popular el team
     } else {
       return res.status(404).json({
         message: "No se ha podido guardar el jugador en la DB ❌",
@@ -51,7 +53,9 @@ const create = async (req, res, next) => {
 const getById = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const playerById = await Player.findById(id); //? cogemos el elemento (jugador) identificandola a través del id, que es único
+    const playerById = await Player.findById(id).populate(
+      "team likes selected",
+    ); //? cogemos el elemento (jugador) identificandola a través del id, que es único
     if (playerById) {
       //? --------------------------- si hay un elemento con dicho id
       return res.status(200).json(playerById);
@@ -68,7 +72,7 @@ const getById = async (req, res, next) => {
 //! --------------- GET ALL ----------------
 const getAll = async (req, res, next) => {
   try {
-    const allPlayers = await Player.find(); //? ------------- el find() nos devuelve un array con todos los elementos de la colección del BackEnd, es decir, TODOS LOS JUGADORES
+    const allPlayers = await Player.find().populate("team likes selected"); //? ------------- el find() nos devuelve un array con todos los elementos de la colección del BackEnd, es decir, TODOS LOS JUGADORES
     if (allPlayers.length > 0) {
       //? --------------------------- SI HAY MOTOS:
       return res.status(200).json(allPlayers);
@@ -87,7 +91,9 @@ const getByName = async (req, res, next) => {
   try {
     const { name } = req.params;
     console.log(name);
-    const playerByName = await Player.find({ name });
+    const playerByName = await Player.find({ name }).populate(
+      "team likes selected",
+    );
     console.log(playerByName);
     if (playerByName.length > 0) {
       return res.status(200).json(playerByName);
@@ -147,7 +153,9 @@ const update = async (req, res) => {
       }
 
       try {
-        await Player.findByIdAndUpdate(id, customBody); //? cambiamos el body con lo que hemos puesto en customBody en el elemento que encontremos con el id
+        await Player.findByIdAndUpdate(id, customBody).populate(
+          "team likes selected",
+        ); //? cambiamos el body con lo que hemos puesto en customBody en el elemento que encontremos con el id
         if (req.file?.path) {
           deleteImgCloudinary(oldImg); //? -------------- eliminamos la imagen que había antes en la DB para no almacenar basura
         }
@@ -163,9 +171,9 @@ const update = async (req, res) => {
           //? ----------------------------- recorremos las claves de lo que se quiere actualizar
           if (req.body[key] === playerByIdUpdated[key]) {
             //? ---------- si el valor de la clave en la request (el valor actualizado que hemos pedido meter) es el mismo que el que hay ahora en el elemento ---> está bien
-            test[key] = true; //? ------------------------------------ está bien hecho por lo tanto en el test con la clave comprobada ponemos true --> test aprobado hehe
+            test.push({ [key]: true }); //? ------------------------------------ está bien hecho por lo tanto en el test con la clave comprobada ponemos true --> test aprobado hehe
           } else {
-            test[key] = false; //? ----------------------------------- algo ha fallado y por lo tanto el test está suspendido (false)
+            test.push({ [key]: false }); //? ----------------------------------- algo ha fallado y por lo tanto el test está suspendido (false)
           }
         });
 
@@ -188,7 +196,7 @@ const update = async (req, res) => {
             update: false,
           });
         } else {
-          return res.status(404).json({
+          return res.status(200).json({
             dataTest: test,
             update: true,
             updatedPlayer: playerByIdUpdated,
@@ -291,7 +299,7 @@ const deletePlayer = async (req, res, next) => {
 const sortPlayersbyDescending = async (req, res, next) => {
   try {
     const { stat } = req.params;
-    const playersArray = await Player.find();
+    const playersArray = await Player.find().populate("team likes selected");
     switch (stat) {
       case "number":
       case "age":
@@ -359,7 +367,7 @@ const sortPlayersbyDescending = async (req, res, next) => {
 const sortPlayersbyAscending = async (req, res, next) => {
   try {
     const { stat } = req.params;
-    const playersArray = await Player.find();
+    const playersArray = await Player.find().populate("team likes selected");
     switch (stat) {
       case "number":
       case "age":
@@ -387,16 +395,16 @@ const sortPlayersbyAscending = async (req, res, next) => {
             "La propiedad por la que quiere ordenar no existe/está mal escrita ❌, compruebe el modelo de datos para checkear como se escribe",
           );
     }
-    const arrayResumido = playersArray.map((player) => ({
-      //? que nos muestre solo esta información para no tener ese montón de datos, solo lo relevante
-      name: player.name,
-      [stat]: player[stat],
-    }));
+    // const arrayResumido = playersArray.map((player) => ({
+    //   //? que nos muestre solo esta información para no tener ese montón de datos, solo lo relevante
+    //   name: player.name,
+    //   [stat]: player[stat],
+    // }));
     return res
-      .status(arrayResumido.length > 0 ? 200 : 404)
+      .status(playersArray.length > 0 ? 200 : 404)
       .json(
-        arrayResumido.length > 0
-          ? arrayResumido
+        playersArray.length > 0
+          ? playersArray
           : "No se han encontrado jugadores en la DB/BackEnd ❌",
       );
   } catch (error) {
@@ -424,7 +432,7 @@ const filterGeneralNum = async (req, res, next) => {
       case "rating":
         playersArray = await Player.find({
           $and: [{ [filter]: { $gt: gt } }, { [filter]: { $lt: lt } }],
-        });
+        }).populate("team likes selected");
         break;
 
       default:
@@ -434,16 +442,16 @@ const filterGeneralNum = async (req, res, next) => {
             "La propiedad por la que quiere filtrar no existe/está mal escrita ❌, compruebe el modelo de datos para checkear como se escribe",
           );
     }
-    const arrayResumido = playersArray.map((team) => ({
-      //? que nos muestre solo esta información para no tener ese montón de datos, solo la info de la propiedad en la que filtramos
-      name: team.name,
-      [filter]: team[filter],
-    }));
+    // const arrayResumido = playersArray.map((team) => ({
+    //   //? que nos muestre solo esta información para no tener ese montón de datos, solo la info de la propiedad en la que filtramos
+    //   name: team.name,
+    //   [filter]: team[filter],
+    // }));
     return res
-      .status(arrayResumido.length > 0 ? 200 : 404)
+      .status(playersArray.length > 0 ? 200 : 404)
       .json(
-        arrayResumido.length > 0
-          ? arrayResumido
+        playersArray.length > 0
+          ? playersArray
           : `No se han encontrado jugadores con ${filter} mayor que ${gt} y menor que ${lt} en la DB/BackEnd ❌`,
       );
   } catch (error) {
@@ -457,7 +465,9 @@ const filterGeneralNum = async (req, res, next) => {
 const filterPlayersEnum = async (req, res, next) => {
   try {
     const { filter, value } = req.params;
-    const playersArray = await Player.find({ [filter]: value }); //? buscamos qué jugadores tienen en la propiedad dada por filter, el valor que dan en el url en value
+    const playersArray = await Player.find({ [filter]: value }).populate(
+      "team likes selected",
+    ); //? buscamos qué jugadores tienen en la propiedad dada por filter, el valor que dan en el url en value
     console.log(playersArray);
 
     if (filter == "position") {
@@ -481,16 +491,16 @@ const filterPlayersEnum = async (req, res, next) => {
           );
       }
     }
-    const arrayResumido = playersArray.map((player) => ({
-      //? que nos muestre solo esta información para no tener ese montón de datos, solo lo relevante
-      name: player.name,
-      [filter]: player[filter],
-    }));
+    // const arrayResumido = playersArray.map((player) => ({
+    //   //? que nos muestre solo esta información para no tener ese montón de datos, solo lo relevante
+    //   name: player.name,
+    //   [filter]: player[filter],
+    // }));
     return res
-      .status(arrayResumido.length > 0 ? 200 : 404)
+      .status(playersArray.length > 0 ? 200 : 404)
       .json(
-        arrayResumido.length > 0
-          ? arrayResumido
+        playersArray.length > 0
+          ? playersArray
           : `No se han encontrado jugadores con el filtro ${filter} en ${value} en la DB/BackEnd ❌`,
       );
   } catch (error) {
@@ -504,7 +514,9 @@ const filterPlayersEnum = async (req, res, next) => {
 const genderSeparation = async (req, res, next) => {
   try {
     const { userId } = req.params; //? cogemos id del jugador al que vamos a examinar
-    const player = await Player.findById(userId);
+    const player = await Player.findById(userId).populate(
+      "team likes selected",
+    );
     let men = 0;
     let woman = 0; //! ahora lo que tengo que hacer es recorrer el array y en cada user del likes examinar si es hombre sumar a hombre y si es mujer, sumar a mujer
     let otros = 0;
