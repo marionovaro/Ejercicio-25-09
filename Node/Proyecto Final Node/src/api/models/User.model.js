@@ -50,7 +50,6 @@ const UserSchema = new mongoose.Schema(
     favElevens: [{ type: mongoose.Schema.Types.ObjectId, ref: "Eleven" }],
     comments: [{ type: mongoose.Schema.Types.ObjectId, ref: "Comment" }],
     favComments: [{ type: mongoose.Schema.Types.ObjectId, ref: "Comment" }],
-    selectedPlayer: [{ type: mongoose.Schema.Types.ObjectId, ref: "Player" }],
     followers: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
     followed: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
     yourteam: [{ type: mongoose.Schema.Types.ObjectId, ref: "Eleven" }],

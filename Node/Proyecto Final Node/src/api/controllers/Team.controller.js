@@ -207,6 +207,8 @@ const update = async (req, res, next) => {
           : teamById.seasontrophies,
         networth: req.body?.networth ? req.body.networth : teamById.networth,
         stadium: req.body?.stadium ? req.body.stadium : teamById.stadium,
+        players: teamById.players,
+        likes: teamById.likes,
       };
 
       //todo ---------------- ENUM (LEAGUE) -------------------
@@ -300,27 +302,27 @@ const deleteTeam = async (req, res, next) => {
           { team: id }, //? --------------------------- queremos cambiar lo que sea que haya que cambiar en esta propiedad del model, si se omite se dice que se cambia cualquier conincidencia en todo el modelo. es la condición
           { $pull: { team: id } }, //? ------------------- estamos diciendo que quite de la propiedad team, el id indicado, es decir el del equipo que se ha eliminado. es la ejecución
         );
+
+        try {
+          //? -------------------------------------- ELIMINAMOS AL EQUIPO DEL USER
+          await User.updateMany(
+            //? ---- ahora estamos cambiando en el model de User para poder quitar el equipo que ya no existe
+            { favTeams: id }, //? -------------------- condición/ubicación del cambio (eliminación)
+            { $pull: { favTeams: id } }, //? ------------ ejecución
+          );
+        } catch (error) {
+          return next(
+            setError(
+              500,
+              error.message || "Error al eliminar al EQUIPO, del USER ❌",
+            ),
+          );
+        }
       } catch (error) {
         return next(
           setError(
             500,
             error.message || "Error al eliminar al EQUIPO, del JUGADOR ❌",
-          ),
-        );
-      }
-
-      try {
-        //? -------------------------------------- ELIMINAMOS AL EQUIPO DEL USER
-        await User.updateMany(
-          //? ---- ahora estamos cambiando en el model de User para poder quitar el equipo que ya no existe
-          { favTeams: id }, //? -------------------- condición/ubicación del cambio (eliminación)
-          { $pull: { favTeams: id } }, //? ------------ ejecución
-        );
-      } catch (error) {
-        return next(
-          setError(
-            500,
-            error.message || "Error al eliminar al EQUIPO, del USER ❌",
           ),
         );
       }

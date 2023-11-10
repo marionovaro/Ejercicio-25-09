@@ -125,6 +125,9 @@ const update = async (req, res) => {
         goals: req.body?.goals ? req.body.goals : playerById.goals,
         assists: req.body?.assists ? req.body.assists : playerById.assists,
         rating: req.body?.rating ? req.body.rating : playerById.rating,
+        teams: playerById.teams,
+        likes: playerById.likes,
+        selected: playerById.selected,
       };
 
       //todo ---------------- ENUM (POSITION) -------------------
@@ -225,42 +228,42 @@ const deletePlayer = async (req, res, next) => {
           { players: id }, //? ---------------------- queremos cambiar lo que sea que haya que cambiar en esta propiedad del model, si se omite se dice que se cambia cualquier conincidencia en todo el modelo. es la condición
           { $pull: { players: id } }, //? -------------- estamos diciendo que quite de la propiedad players, el id indicado, es decir el del jugador que se ha eliminado. es la ejecución
         );
+
+        try {
+          //? -------------------------------------- ELIMINAMOS AL JUGADOR DEL USER
+          await User.updateMany(
+            //? ---- ahora estamos cambiando en el model de User para poder quitar el jugador que ya no existe
+            { favPlayers: id }, //? ------------------ condición/ubicación del cambio (eliminación)
+            { $pull: { favPlayers: id } }, //? ---------- ejecución
+          );
+
+          try {
+            //? ---------------------------------------- ELIMINAMOS AL JUGADOR DEL ELEVEN
+            await Eleven.updateMany(
+              //? ---- ahora estamos cambiando en el model de Eleven para poder quitar el jugador que ya no existe
+              { $pull: { id } }, //? -------------------------- ejecución
+            );
+          } catch (error) {
+            return next(
+              setError(
+                500,
+                error.message || "Error al eliminar jugador del 11 ideal ❌",
+              ),
+            );
+          }
+        } catch (error) {
+          return next(
+            setError(
+              500,
+              error.message || "Error al eliminar jugador del user ❌",
+            ),
+          );
+        }
       } catch (error) {
         return next(
           setError(
             500,
             error.message || "Error al eliminar el jugador del equipo ❌",
-          ),
-        );
-      }
-
-      try {
-        //? -------------------------------------- ELIMINAMOS AL JUGADOR DEL USER
-        await User.updateMany(
-          //? ---- ahora estamos cambiando en el model de User para poder quitar el jugador que ya no existe
-          { favPlayers: id }, //? ------------------ condición/ubicación del cambio (eliminación)
-          { $pull: { favPlayers: id } }, //? ---------- ejecución
-        );
-      } catch (error) {
-        return next(
-          setError(
-            500,
-            error.message || "Error al eliminar jugador del user ❌",
-          ),
-        );
-      }
-
-      try {
-        //? ---------------------------------------- ELIMINAMOS AL JUGADOR DEL ELEVEN
-        await Eleven.updateMany(
-          //? ---- ahora estamos cambiando en el model de Eleven para poder quitar el jugador que ya no existe
-          { $pull: { id } }, //? -------------------------- ejecución
-        );
-      } catch (error) {
-        return next(
-          setError(
-            500,
-            error.message || "Error al eliminar jugador del 11 ideal ❌",
           ),
         );
       }

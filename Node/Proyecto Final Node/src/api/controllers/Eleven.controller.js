@@ -29,34 +29,34 @@ const create = async (req, res, next) => {
         propiedad //? ------------------------------------ la propiedad es la posición en la que los hemos puesto
       ) {
         case "goalkeeper":
-          player = await Player.findOne({ name: body[propiedad] });
+          player = await Player.findById(body[propiedad]);
           player.position == "goalkeeper"
-            ? (elevenTeam[propiedad] = player.name)
+            ? (elevenTeam[propiedad] = player.id)
             : errors.push({
                 error: `El jugador en la posición ${propiedad} no está colocado en una posición apta para él`,
               });
           break;
         case "rightback":
-          player = await Player.findOne({ name: body[propiedad] });
+          player = await Player.findById(body[propiedad]);
           player.position == "right-back"
-            ? (elevenTeam[propiedad] = player.name)
+            ? (elevenTeam[propiedad] = player.id)
             : errors.push({
                 error: `El jugador en la posición ${propiedad} no está colocado en una posición apta para él`,
               });
           break;
         case "centreback1":
         case "centreback2":
-          player = await Player.findOne({ name: body[propiedad] });
+          player = await Player.findById(body[propiedad]);
           player.position == "centre-back"
-            ? (elevenTeam[propiedad] = player.name)
+            ? (elevenTeam[propiedad] = player.id)
             : errors.push({
                 error: `El jugador en la posición ${propiedad} no está colocado en una posición apta para él`,
               });
           break;
         case "leftback":
-          player = await Player.findOne({ name: body[propiedad] });
+          player = await Player.findById(body[propiedad]);
           player.position == "left-back"
-            ? (elevenTeam[propiedad] = player.name)
+            ? (elevenTeam[propiedad] = player.id)
             : errors.push({
                 error: `El jugador en la posición ${propiedad} no está colocado en una posición apta para él`,
               });
@@ -64,9 +64,9 @@ const create = async (req, res, next) => {
         case "midfielder1":
         case "midfielder2":
         case "midfielder3":
-          player = await Player.findOne({ name: body[propiedad] });
+          player = await Player.findById(body[propiedad]);
           player.position == "midfielder"
-            ? (elevenTeam[propiedad] = player.name)
+            ? (elevenTeam[propiedad] = player.id)
             : errors.push({
                 error: `El jugador en la posición ${propiedad} no está colocado en una posición apta para él`,
               });
@@ -74,9 +74,9 @@ const create = async (req, res, next) => {
         case "forward1":
         case "forward2":
         case "forward3":
-          player = await Player.findOne({ name: body[propiedad] });
+          player = await Player.findById(body[propiedad]);
           player.position == "forward"
-            ? (elevenTeam[propiedad] = player.name)
+            ? (elevenTeam[propiedad] = player.id)
             : errors.push({
                 error: `El jugador en la posición ${propiedad} no está colocado en una posición apta para él`,
               });
@@ -93,7 +93,7 @@ const create = async (req, res, next) => {
         //todo ----------- RECIPROCIDAD CON PLAYER --------------------
         if (posicion != "name") {
           //? --------------------------------- lo hacemos porque name también viene como propiedad en el body pero no es un jugador que cambiar el modelo
-          player = await Player.findOne({ name: body[posicion] });
+          player = await Player.findById(body[posicion]);
           await Player.findByIdAndUpdate(
             player.id, //? ------------- 1r param: el id del elemento que vamos a modificar (añadirle a la propiedad selected)
             { $push: { selected: saveEleven._id } }, //? ------------------- 2o param: le metemos el id del eleven que estamos creando a la propiedad selected del player que hemos puesto en el body
@@ -109,8 +109,8 @@ const create = async (req, res, next) => {
         .json(
           saveEleven
             ? await Eleven.findById(saveEleven._id).populate(
-                "owner",
-              ) /* goalkeeper rightback centreback1 centreback2 leftback midfielder1 midfielder2 midfielder3 forward1 forward2 forward3")*/
+                "owner goalkeeper rightback centreback1 centreback2 leftback midfielder1 midfielder2 midfielder3 forward1 forward2 forward3",
+              )
             : "Error en el guardado del 11 ideal ❌",
         );
     } else {
@@ -200,7 +200,7 @@ const update = async (req, res, next) => {
     const body = req.body;
     const checkPosition = async (clave, posicion) => {
       //? ----- funcion que usamos para checkear que el nuevo jugador está en la posición correcta
-      const player = await Player.findOne({ name: body[clave] });
+      const player = await Player.findById(body[clave]);
       if (player.positon == posicion) {
         return true;
       } else {
@@ -255,12 +255,13 @@ const update = async (req, res, next) => {
           body?.forward3 && checkPosition("forward3", "forward")
             ? body.forward3
             : elevenById.forward3,
+        likes: elevenById.likes,
+        comments: elevenById.comments,
       };
       for (let position in body) {
+        //? estamos sacando el selected del jugador que estamos quitando, porque deja de ser selected
         if (position != "name") {
-          const elementPlayer = await Player.findOne({
-            name: elevenById[position],
-          }); //? hago findone y no find porque así solo me da uno y puedo hacer elementPlayer._id, sino tendría q hacer elementPlayer[0]._id
+          const elementPlayer = await Player.findById(body[position]); //? hago findone y no find porque así solo me da uno y puedo hacer elementPlayer._id, sino tendría q hacer elementPlayer[0]._id
           await Player.findByIdAndUpdate(elementPlayer._id, {
             $pull: { selected: id },
           });
@@ -269,7 +270,7 @@ const update = async (req, res, next) => {
       }
       for (let position in body) {
         if (position != "name") {
-          const elementPlayer = await Player.findOne({ name: body[position] }); //? hago findone y no find porque así solo me da uno y puedo hacer elementPlayer._id, sino tendría q hacer elementPlayer[0]._id
+          const elementPlayer = await Player.findById(body[position]); //? hago findone y no find porque así solo me da uno y puedo hacer elementPlayer._id, sino tendría q hacer elementPlayer[0]._id
           await Player.findByIdAndUpdate(elementPlayer.id, {
             $push: { selected: id },
           });
@@ -347,82 +348,83 @@ const deleteEleven = async (req, res, next) => {
           { selected: id }, //? --------------------------- queremos cambiar lo que sea que haya que cambiar en esta propiedad del model, si se omite se dice que se cambia cualquier conincidencia en todo el modelo. es la condición
           { $pull: { selected: id } }, //? ------------------- estamos diciendo que quite de la propiedad selected, el id indicado, es decir el del equipo que se ha eliminado. es la ejecución
         );
-      } catch (error) {
-        return next(
-          setError(
-            500,
-            error.message || "Error al eliminar el eleven del jugador ❌",
-          ),
-        );
-      }
 
-      try {
-        //? -------------------------------------- ELIMINAMOS AL YOURTEAM DEL USER
-        await User.updateMany(
-          //? ---- ahora estamos cambiando en el model de User para poder quitar el equipo que ya no existe
-          { yourteam: id }, //? -------------------- condición/ubicación del cambio (eliminación)
-          { $pull: { yourteam: id } }, //? ------------ ejecución
-        );
-      } catch (error) {
-        return next(
-          setError(
-            500,
-            error.message || "Error al eliminar el eleven del user ❌",
-          ),
-        );
-      }
+        try {
+          //? -------------------------------------- ELIMINAMOS AL YOURTEAM DEL USER
+          await User.updateMany(
+            //? ---- ahora estamos cambiando en el model de User para poder quitar el equipo que ya no existe
+            { yourteam: id }, //? -------------------- condición/ubicación del cambio (eliminación)
+            { $pull: { yourteam: id } }, //? ------------ ejecución
+          );
 
-      try {
-        //? ---------------------------------------- ELIMINAMOS AL FAVELEVEN DEL USER
-        await User.updateMany(
-          //? ------ ahora estamos cambiando en el model de User para poder quitar el equipo que ya no existe
-          { favElevens: id }, //? -------------------- condición/ubicación del cambio (eliminación)
-          { $pull: { favElevens: id } }, //? ------------ ejecución
-        );
-      } catch (error) {
-        return next(
-          setError(
-            500,
-            error.message || "Error al eliminar el eleven del user ❌",
-          ),
-        );
-      }
-
-      try {
-        //? -------------------------------------- ELIMINAMOS LOS COMMENTS DEL ELEVEN - repetimos lo que hacemos en el delteComment, porque lo estamos eliminando
-        const arrayComments = await Comment.find({ location: id });
-        let errors = [];
-        arrayComments.forEach(async (comment) => {
-          //? --------------------------- hacemos forEach para recorrer el array de comentarios que hemos encontrado en el eleven a borrar
-          await Comment.findByIdAndDelete(comment); //? ----- cogemos el id de cada comentario con param comment y lo borramos
           try {
-            //? ----------------------------------------- ELIMINAMOS AL FAVCOMMENT DEL USER
+            //? ---------------------------------------- ELIMINAMOS AL FAVELEVEN DEL USER
             await User.updateMany(
-              //? ------- ahora estamos cambiando en el model de User para poder quitar el favcomment que ya no existe
-              { favComments: id }, //? -------------------- condición/ubicación del cambio (eliminación)
-              { $pull: { favComments: id } }, //? ------------ ejecución
+              //? ------ ahora estamos cambiando en el model de User para poder quitar el equipo que ya no existe
+              { favElevens: id }, //? -------------------- condición/ubicación del cambio (eliminación)
+              { $pull: { favElevens: id } }, //? ------------ ejecución
             );
+
+            try {
+              //? -------------------------------------- ELIMINAMOS LOS COMMENTS DEL ELEVEN - repetimos lo que hacemos en el delteComment, porque lo estamos eliminando
+              const arrayComments = await Comment.find({ location: id });
+              let errors = [];
+              arrayComments.forEach(async (comment) => {
+                //? --------------------------- hacemos forEach para recorrer el array de comentarios que hemos encontrado en el eleven a borrar
+                await Comment.findByIdAndDelete(comment); //? ----- cogemos el id de cada comentario con param comment y lo borramos
+                try {
+                  //? ----------------------------------------- ELIMINAMOS AL FAVCOMMENT DEL USER
+                  await User.updateMany(
+                    //? ------- ahora estamos cambiando en el model de User para poder quitar el favcomment que ya no existe
+                    { favComments: id }, //? -------------------- condición/ubicación del cambio (eliminación)
+                    { $pull: { favComments: id } }, //? ------------ ejecución
+                  );
+                } catch (error) {
+                  return next(
+                    setError(
+                      500,
+                      error.message ||
+                        "Error al eliminar el comentario del user - DELETE ELEVEN❌",
+                    ),
+                  );
+                }
+                const checkCommentExist = await Comment.findById(comment); //? --------- miramos si el comment aun existe (no debería)
+                checkCommentExist ? errors.push(comment) : null; //? ------------------- si existe pusheamos el id(comment) al array de errores
+              });
+              if (errors.length > 0) {
+                //? ----------------------------------------------- si el array tiene 1 o mas errores, lo mostramos, si no es así, seguimos con el código
+                return res.status(404).json(errors);
+              }
+            } catch (error) {
+              return next(
+                setError(
+                  500,
+                  error.message ||
+                    "Error al eliminar los comments del eleven ❌",
+                ),
+              );
+            }
           } catch (error) {
             return next(
               setError(
                 500,
-                error.message ||
-                  "Error al eliminar el comentario del user - DELETE ELEVEN❌",
+                error.message || "Error al eliminar el eleven del user ❌",
               ),
             );
           }
-          const checkCommentExist = await Comment.findById(comment); //? --------- miramos si el comment aun existe (no debería)
-          checkCommentExist ? errors.push(comment) : null; //? ------------------- si existe pusheamos el id(comment) al array de errores
-        });
-        if (errors.length > 0) {
-          //? ----------------------------------------------- si el array tiene 1 o mas errores, lo mostramos, si no es así, seguimos con el código
-          return res.status(404).json(errors);
+        } catch (error) {
+          return next(
+            setError(
+              500,
+              error.message || "Error al eliminar el eleven del user ❌",
+            ),
+          );
         }
       } catch (error) {
         return next(
           setError(
             500,
-            error.message || "Error al eliminar los comments del eleven ❌",
+            error.message || "Error al eliminar el eleven del jugador ❌",
           ),
         );
       }

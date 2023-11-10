@@ -628,6 +628,14 @@ const update = async (req, res, next) => {
     patchUser.confirmationCode = req.user.confirmationCode;
     patchUser.check = req.user.check;
     patchUser.email = req.user.email;
+    patchUser.favPlayers = req.user.favPlayers;
+    patchUser.favTeams = req.user.favTeams;
+    patchUser.favElevens = req.user.favElevens;
+    patchUser.comments = req.user.comments;
+    patchUser.favComments = req.user.favComments;
+    patchUser.followers = req.user.followers;
+    patchUser.followed = req.user.followed;
+    patchUser.yourteam = req.user.yourteam;
 
     if (req.body?.gender) {
       //? como el genero es enum, no se puede modificar a cualquier cosa, ponemos la función que pusimos en el update de los characters
@@ -711,59 +719,61 @@ const deleteUser = async (req, res, next) => {
           { likes: id }, //? ------------------------ queremos cambiar lo que sea que haya que cambiar en esta propiedad del model, si se omite se dice que se cambia cualquier conincidencia en todo el modelo. es la condición
           { $pull: { likes: id } }, //? ---------------- estamos diciendo que quite de la propiedad likes, el id indicado, es decir el del user que se ha eliminado. es la ejecución
         );
+
+        try {
+          //? -------------------------------------- ELIMINAMOS AL USER (follow) DEL USER
+          await User.updateMany(
+            //? ---- ahora estamos cambiando en el model de User para poder quitar el user que ha dao follow que ya no existe
+            { followers: id }, //? ------------------- condición/ubicación del cambio (eliminación)
+            { $pull: { followers: id } }, //? ----------- ejecución
+          );
+
+          try {
+            //? ---------------------------------------- ELIMINAMOS AL JUGADOR DEL ELEVEN
+            await Eleven.updateMany(
+              //? ---- ahora estamos cambiando en el model de Eleven para poder quitar el jugador que ya no existe de los likes
+              { likes: id },
+              { $pull: { likes: id } },
+            );
+
+            try {
+              //? ------------------------------------------ ELIMINAMOS AL USER DEL COMMENT
+              await Comment.updateMany(
+                //? ----- ahora estamos cambiando en el model de comment para poder quitar el user que ya no existe
+                { likes: id }, //? --------------------------- queremos cambiar lo que sea que haya que cambiar en esta propiedad del model, si se omite se dice que se cambia cualquier conincidencia en todo el modelo. es la condición
+                { $pull: { likes: id } }, //? ------------------- estamos diciendo que quite de la propiedad likes, el id indicado, es decir el del user que se ha eliminado. es la ejecución
+              );
+            } catch (error) {
+              return next(
+                setError(
+                  500,
+                  error.message ||
+                    "Error al eliminar el user (like) del comment ❌",
+                ),
+              );
+            }
+          } catch (error) {
+            return next(
+              setError(
+                500,
+                error.message ||
+                  "Error al eliminar el user (like) del eleven ❌",
+              ),
+            );
+          }
+        } catch (error) {
+          return next(
+            setError(
+              500,
+              error.message || "Error al eliminar el user (follow) del user ❌",
+            ),
+          );
+        }
       } catch (error) {
         return next(
           setError(
             500,
             error.message || "Error al eliminar el user (like) del equipo ❌",
-          ),
-        );
-      }
-
-      try {
-        //? -------------------------------------- ELIMINAMOS AL USER (follow) DEL USER
-        await User.updateMany(
-          //? ---- ahora estamos cambiando en el model de User para poder quitar el user que ha dao follow que ya no existe
-          { followers: id }, //? ------------------- condición/ubicación del cambio (eliminación)
-          { $pull: { followers: id } }, //? ----------- ejecución
-        );
-      } catch (error) {
-        return next(
-          setError(
-            500,
-            error.message || "Error al eliminar el user (follow) del user ❌",
-          ),
-        );
-      }
-
-      try {
-        //? ---------------------------------------- ELIMINAMOS AL JUGADOR DEL ELEVEN
-        await Eleven.updateMany(
-          //? ---- ahora estamos cambiando en el model de Eleven para poder quitar el jugador que ya no existe de los likes
-          { likes: id },
-          { $pull: { likes: id } },
-        );
-      } catch (error) {
-        return next(
-          setError(
-            500,
-            error.message || "Error al eliminar el user (like) del eleven ❌",
-          ),
-        );
-      }
-
-      try {
-        //? ------------------------------------------ ELIMINAMOS AL USER DEL COMMENT
-        await Comment.updateMany(
-          //? ----- ahora estamos cambiando en el model de comment para poder quitar el user que ya no existe
-          { likes: id }, //? --------------------------- queremos cambiar lo que sea que haya que cambiar en esta propiedad del model, si se omite se dice que se cambia cualquier conincidencia en todo el modelo. es la condición
-          { $pull: { likes: id } }, //? ------------------- estamos diciendo que quite de la propiedad likes, el id indicado, es decir el del user que se ha eliminado. es la ejecución
-        );
-      } catch (error) {
-        return next(
-          setError(
-            500,
-            error.message || "Error al eliminar el user (like) del comment ❌",
           ),
         );
       }
