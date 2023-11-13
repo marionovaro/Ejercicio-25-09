@@ -4,8 +4,10 @@ import { H1, Saludo, MotosCustom } from './components'
 import { cities, motos} from "./data/index"
 
 const App = () => {
-  const [count, setCount] = useState(0)
-
+  const [valor, setValor] = useState(false)
+  const modificarEstado = () => {
+    setValor((value) => valor = !valor)
+  }
   return (
     <>
       {/* <Saludo/> */ }
@@ -21,7 +23,7 @@ const App = () => {
       {/* debemos indicar que el destructuring que hemos hecho en el componente (miralo) hace referencia a la ciudad recorrida (param (entre llaves))  */}
 
 
-      {motos.map((moto) => (
+      {/* {motos.map((moto) => (
         <MotosCustom
          key = {moto.model}
           mark = {moto.mark}
@@ -30,8 +32,11 @@ const App = () => {
           weight = {moto.weight}
           horsepower= {moto.horsepower}
         />
-      ))}
+      ))} */}
       {/* tenemos que atribuir el valor a los destructuring del componente MotosCustom, y lo hacemos con la moto recorrida, ya que ésta tiene la info en arrayobjetos.js   */}
+
+
+
     </>
   )
 }
