@@ -8,7 +8,8 @@ const App = () => {
 
   return (
     <>
-      {/* <Saludo/> //? en vez de llamar a la funcion entre llaves, la llamamaos entre </> porque así debe ser*/ }  
+      {/* <Saludo/> */ }
+      {/* en vez de llamar a la funcion entre llaves, la llamamos entre </> porque así debe ser */}
 
 
       {/* <ul>
@@ -16,10 +17,13 @@ const App = () => {
         <H1 city={city}/>
       ))}
       </ul> */}
+      {/* aquí si nos fijamos en cada elemento del array, ejecutamos otro componente (estamos componetizando) y lo llamamos con </>. lo que hace es devolver un h1 con la ciudad (elemento recorrido)*/}
+      {/* debemos indicar que el destructuring que hemos hecho en el componente (miralo) hace referencia a la ciudad recorrida (param (entre llaves))  */}
 
 
       {motos.map((moto) => (
         <MotosCustom
+         key = {moto.model}
           mark = {moto.mark}
           model = {moto.model}
           cc = {moto.cc}
@@ -27,6 +31,7 @@ const App = () => {
           horsepower= {moto.horsepower}
         />
       ))}
+      {/* tenemos que atribuir el valor a los destructuring del componente MotosCustom, y lo hacemos con la moto recorrida, ya que ésta tiene la info en arrayobjetos.js   */}
     </>
   )
 }
