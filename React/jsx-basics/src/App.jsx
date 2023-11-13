@@ -2,12 +2,13 @@ import './App.css'
 import { useState } from 'react'
 import { H1, Saludo, MotosCustom } from './components'
 import { cities, motos} from "./data/index"
+import { Home } from "./pages/Home/Home"
 
 const App = () => {
   const [valor, setValor] = useState(false)
-  const modificarEstado = () => {
-    setValor((value) => valor = !valor)
-  }
+  // const modificarEstado = () => {
+  //   setValor((value) => value = !valor)
+  // }
   return (
     <>
       {/* <Saludo/> */ }
@@ -36,7 +37,7 @@ const App = () => {
       {/* tenemos que atribuir el valor a los destructuring del componente MotosCustom, y lo hacemos con la moto recorrida, ya que ésta tiene la info en arrayobjetos.js   */}
 
 
-
+      <Home/>
     </>
   )
 }
