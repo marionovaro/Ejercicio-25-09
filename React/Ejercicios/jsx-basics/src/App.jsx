@@ -26,7 +26,7 @@ const App = () => {
 
       {//! 4. Recorrer array de objetos y renderizar
       }
-      {/* {motos.map((moto) => (
+      {motos.map((moto) => (
         <MotosCustom
          key = {moto.model}
           mark = {moto.mark}
@@ -35,13 +35,13 @@ const App = () => {
           weight = {moto.weight}
           horsepower= {moto.horsepower}
         />
-      ))} */}
+      ))}
       {/* tenemos que atribuir el valor a los destructuring del componente MotosCustom, y lo hacemos con la moto recorrida, ya que ésta tiene la info en arrayobjetos.js   */}
 
 
       {//! 5. Botón cambia estado y renderiza según estado
       }
-      <Home/>
+      {/* <Home/> */}
     </>
   )
 }
