@@ -1,0 +1,6 @@
+export * from "./Header/Header"
+export * from "./Nav/Nav"
+export * from "./Main/Main"
+export * from "./Footer/Footer"
+export * from "./Title/Title"
+export * from "./MotoCard/MotoCard"
