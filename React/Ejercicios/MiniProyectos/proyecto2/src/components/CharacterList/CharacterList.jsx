@@ -1,5 +1,5 @@
-export const CharacterList = () => {
+export const CharacterList = ({ children }) => {
     return (
-        <div>CharacterList</div>
+        <ul>{children}</ul>
     )
 }

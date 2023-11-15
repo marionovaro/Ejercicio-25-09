@@ -1,5 +1,5 @@
-export const SubTitle = () => {
+export const SubTitle = ({ children }) => {
     return (
-        <div>SubTitle</div>
+        <h2>{children}</h2>
     )
 }

@@ -1,5 +1,5 @@
-export const Paragraph = () => {
+export const Paragraph = ({ children }) => {
     return (
-        <div>Paragraph</div>
+        <p>{children}</p>
     )
 }

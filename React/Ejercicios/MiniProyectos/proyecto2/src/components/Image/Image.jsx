@@ -1,5 +1,5 @@
-export const Image = () => {
+export const Image = ({src, alt, height, width}) => {
     return (
-        <div>Image</div>
+        <img/>
     )
 }
