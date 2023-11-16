@@ -1,5 +1,11 @@
-export const ItemList = ({ children }) => {
+export const ItemList = ({ name, image, status, origin }) => {
     return (
-        <li>{children}</li>
+        <>
+            <li>{name}</li>
+            <li><img src = {children}/></li>
+            <li>{children}</li>
+            <li>{children}</li>
+        </>
+
     )
 }

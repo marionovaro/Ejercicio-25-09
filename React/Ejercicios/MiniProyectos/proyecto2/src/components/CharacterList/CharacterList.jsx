@@ -1,5 +1,10 @@
-export const CharacterList = ({ children }) => {
+import { dataRicky } from "../../data/rickydata"
+
+export const CharacterList = ({ id }) => {
     return (
-        <ul>{children}</ul>
+        dataRicky.results.map((character) => {
+            <ul className={`character-${id}`}></ul>
+        })
+    
     )
 }
