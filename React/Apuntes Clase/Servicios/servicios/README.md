@@ -1,1 +1,1 @@
-Importante trabajar esto para entender bien la estructura
+Importante trabajar esto para entender bien la estructura. HECHO EL JUEVES 16 DE NOVIEMBRE EN LA SEGUNDA CLASE
