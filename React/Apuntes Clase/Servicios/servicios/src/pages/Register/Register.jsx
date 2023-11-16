@@ -36,6 +36,10 @@ useEffect(() => { //? gestionamos los errores con el customhook (useErrorRegiste
   useErrorRegister(res, setOk, setRes) //? res: qué tipo de status tiene?; setOk: cuando esté ok, que se ponga a true; setRes: si hay un error, seteamos la respuesta a inicial, y reiniciar el primer estado
 }, [res])
 
+//todo 5) GESTIÓN DE LOS ESTADOS DE NAVEGACIÓN O ESTADOS O OK
+if (ok) { //? qué hacemos si el registro está ok: llevamos al usuario a la pagina de checkcode confirmation, renderizo otra pag.
+
+}
   return (
     <h1>Register</h1>
   )
