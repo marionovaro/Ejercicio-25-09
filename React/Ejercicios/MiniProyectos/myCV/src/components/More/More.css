@@ -1,0 +1,9 @@
+.languages{
+  display: flex;
+  flex-direction: row;
+  /* color: red; */
+
+  & li:nth-last-child(1){
+    margin: 7px 0 0 0
+  }
+}
