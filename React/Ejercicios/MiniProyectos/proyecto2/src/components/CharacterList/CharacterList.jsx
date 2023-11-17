@@ -1,10 +1,8 @@
-import { dataRicky } from "../../data/rickydata"
+import "./CharacterList.css"
 
-export const CharacterList = ({ id }) => {
+export const CharacterList = ({name, children }) => { //? preguntar si es mejor poner el ItemList en App.jsx o dentro de este componente
     return (
-        dataRicky.results.map((character) => {
-            <ul className={`character-${id}`}></ul>
-        })
+            <ul className={`character ${name.split(" ").splice(0, 1)}`}>{ children }</ul>
     
     )
 }
