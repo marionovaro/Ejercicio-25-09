@@ -1,0 +1,15 @@
+h1{
+  display: flex;
+  justify-content: center;
+  gap: 3px;
+  margin: 25px;
+}
+
+.cronometro-botones{
+  margin: 0 0 20px 0;
+
+  & button{
+    width: 100px;
+    background-color: whitesmoke;
+  }
+}

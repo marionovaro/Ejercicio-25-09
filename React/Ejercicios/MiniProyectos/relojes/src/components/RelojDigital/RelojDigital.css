@@ -1,0 +1,16 @@
+.card{
+  border-radius: 20px;
+  background-color: rgb(235, 120, 78);
+  padding: 3px 30px;
+}
+
+.section {
+  background-color: rgb(235, 211, 179);
+  padding: 20px;
+  border-radius: 5px;
+}
+
+.icono{
+  height: 25px;
+  margin: 0 0 5px 0;
+}
