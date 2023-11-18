@@ -36,7 +36,7 @@ export const Countdown = () => {
             }
           }
     }, 1000)
-    if (dateRequest > goalTime) { //? esto lo pongo aquí para que no se monte y desmonte en cada render que cumpla la condicion (todos si el countdown es pasado)
+    if (dateRequest > goalTime) { //? - esto lo pongo aquí para que no se monte y desmonte en cada render que cumpla la condicion (todos si el countdown es pasado)
       setFuture(!future)
     }
   }, [])
