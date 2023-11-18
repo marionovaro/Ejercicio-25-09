@@ -1,12 +1,12 @@
 export const CV = {
     mario: {
-      name: "Anthony",
-      surname: "Edward Stark",
-      city: "Avengers Tower / New York",
-      email: "tony@starkindustries.com",
-      birthDate: "29/05/1970",
+      name: "Mario",
+      surname: "Novaro Custodio",
+      city: "Castelldefels, Barcelona",
+      email: "manocudev@gmail.com",
+      birthDate: "25/06/2004",
       phone: "+34 638 795 464",
-      image: "https://i.imgur.com/ZQAkED3.png",
+      image: "https://res.cloudinary.com/dx2arqne6/image/upload/v1700246346/Last_Island_Beach_eas2st.jpg",
       gitHub: "https://github.com/tonystark",
       aboutMe: [
         {
@@ -96,5 +96,3 @@ export const CV = {
       "🏄🏻‍♂️ Surfing"
     ],
   };
-
-  console.log(CV.mario.aboutMe[0].info)

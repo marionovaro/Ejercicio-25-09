@@ -1,8 +1,8 @@
 import './App.css'
-import { About, Education, Experience, Mario, More, Separador } from './components'
+import { About, BotonRender, Education, Experience, Mario, More, Separador } from './components'
 import { CV } from './data/dataMario'
 
-const { mario, education, experience, languages, habilities, hobbies } = CV
+const { mario, languages, education, experience, habilities, hobbies } = CV
 
 export const App = () => {
   return (
@@ -10,10 +10,7 @@ export const App = () => {
       <Mario mario = {mario}/>
       <Separador titulo= "About"/>
       <About about = {mario}/>
-      <Separador titulo= "Education"/>
-      <Education education = {education}/>
-      <Separador titulo= "Experience"/>
-      <Experience experience = {experience}/>
+      <BotonRender education = {education} experience = {experience}/>      
       <Separador titulo= "More Info"/>
       <More
         languages = {languages}

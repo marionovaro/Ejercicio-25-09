@@ -1,0 +1,9 @@
+#button-render{
+  display: flex;
+  flex-direction: row;
+  gap: 1rem;
+}
+#button-render > button {
+  background-color: transparent;
+  border: 2px solid black;
+}

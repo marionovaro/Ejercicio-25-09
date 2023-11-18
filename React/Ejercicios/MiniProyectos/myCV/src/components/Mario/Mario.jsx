@@ -3,7 +3,7 @@ import "./Mario.css"
 export const Mario = ({ mario }) => {
     return (
         <section className="mario">
-            <img src="mario.image" alt="Mario's image" />
+            <img src={mario.image} alt="Mario's image" />
             <article className="card">
                 <h2>{`${mario.name} ${mario.surname}`}</h2>
                 <p>🗺️ {mario.city}</p>
