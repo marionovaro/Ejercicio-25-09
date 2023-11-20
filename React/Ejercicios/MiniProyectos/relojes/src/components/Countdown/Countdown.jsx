@@ -56,7 +56,24 @@ export const Countdown = () => {
     // } else {
     //   setFuture(false)
     // }
-  }, [date]) //? falta añadir los ifs del negativo
+  }, [date]) //? falta añadir los ifs del pasado y futuro 
+
+  // if (dateRequest > date) { //? ----------------------------- SI EL COUNTDOWN ES MIRANDO AL PASADO
+  //   console.log("if " + left)
+  //   setLeft(diffDays*-1 + "d " + diffHours*-1 + "h " + diffMinutes*-1 + "m " + diffSeconds*-1 + "s "); //? como goal es menor, la diferencia es negativa ponemos los numeros en positivo haciendo *-1
+  //   if (diff > 0) {
+  //     clearInterval(interval)
+  //     setLeft("COUNTDOWN FINISHED")
+  //   } 
+  // } else { //? -------------------------------------------------- SI EL COUNTDOWN ES MIRANDO AL FUTURO
+  //   console.log( "else " + left)
+  //   setLeft(diffDays + "d " + diffHours + "h " + diffMinutes + "m " + diffSeconds + "s ");
+  //   if (diff < 0) {
+  //     clearInterval(interval)
+  //     setLeft("COUNTDOWN FINISHED")
+  //   }
+  // }
+
   return (
     <section className="section countdown">
       <img className="icono" src="https://cdn-icons-png.flaticon.com/512/58/58778.png" alt="icono cuenta atrás" />
