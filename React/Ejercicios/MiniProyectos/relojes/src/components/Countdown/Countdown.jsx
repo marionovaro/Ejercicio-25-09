@@ -46,7 +46,7 @@ export const Countdown = () => {
       console.log("diff" + diff)
     }, 1000)
     intervalRef.current = interval
-    return () => {
+    return () => { //? cuando me desmonto del componente tambien cerramos el intervalo porque ya no lo utilizamos
       if (intervalRef.current) {
         clearInterval(intervalRef.current)
       }
