@@ -1,5 +1,6 @@
-import { useEffect, useState } from "react"
+import { useEffect, useState, useRef } from "react"
 import "./Countdown.css"
+
 
 
 export const Countdown = () => {
@@ -8,6 +9,7 @@ export const Countdown = () => {
   const [left, setLeft] = useState("")
   const [future, setFuture] = useState(true)
   const [date, setDate] = useState(newDate.getTime())
+  const intervalRef = useRef(null)
 
   const dateRequest = new Date().getTime()
   // let goalDate = new Date("Nov 21, 2025 11:24:00") //? ---- fecha objetivo
@@ -20,29 +22,35 @@ export const Countdown = () => {
     let año = timeSplit[0]
     let mes = timeSplit[1]
     let dia = timeSplit[2]
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current)
+    }
     setDate(new Date(año, mes, dia).getTime())
   }
 
 
   useEffect(() => {
-    // console.log(date)
-    // console.log(left)
-    let variable = new Date(date).getTime()
     let interval = setInterval(() => { //? --------------------------- para que se ejecute y cambie a cada segundo
       let now = new Date().getTime() //? ----------------------------- fecha de hoy en milisegundos
-      let diff = variable - now
+      let diff = date - now
       let diffDays = Math.floor((diff / (1000 * 60 * 60 * 24))) //? ---- convertimos a dias
       let diffHours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
       let diffMinutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
       let diffSeconds = Math.floor((diff % (1000 * 60)) / 1000);
       setLeft(diffDays + "d " + diffHours + "h " + diffMinutes + "m " + diffSeconds + "s ")
       if (diff < 0) {
-        clearInterval(interval)
+        clearInterval(intervalRef.current)
         setLeft("COUNTDOWN FINISHED")
       }
       console.log("date" + date)
       console.log("diff" + diff)
     }, 1000)
+    intervalRef.current = interval
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current)
+      }
+    }
     // if (dateRequest < date) { //? esto lo pongo aquí para que no se monte y desmonte en cada render que cumpla la condicion (todos si el countdown es pasado)
     //   setFuture(true)
     // } else {
