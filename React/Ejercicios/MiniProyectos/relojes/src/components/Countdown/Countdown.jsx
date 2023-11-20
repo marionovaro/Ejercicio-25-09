@@ -56,7 +56,7 @@ export const Countdown = () => {
     // } else {
     //   setFuture(false)
     // }
-  }, [date]) //? falta añadir los ifs del pasado y futuro 
+  }, [date]) //? falta añadir los ifs del pasado y futuro. lo que esta abajo
 
   // if (dateRequest > date) { //? ----------------------------- SI EL COUNTDOWN ES MIRANDO AL PASADO
   //   console.log("if " + left)
