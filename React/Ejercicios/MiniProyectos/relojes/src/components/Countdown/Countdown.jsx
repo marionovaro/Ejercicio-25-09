@@ -56,7 +56,7 @@ export const Countdown = () => {
     // } else {
     //   setFuture(false)
     // }
-  }, [date])
+  }, [date]) //? falta
   return (
     <section className="section countdown">
       <img className="icono" src="https://cdn-icons-png.flaticon.com/512/58/58778.png" alt="icono cuenta atrás" />
